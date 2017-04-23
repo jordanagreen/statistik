@@ -3,15 +3,15 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-TITLES_PAGE = 'https://zenius-i-vanisher.com/v5.2/gamedb.php?gameid=1129'
-NOTECOUNTS_PAGE = 'https://zenius-i-vanisher.com/v5.2/gamedb.php?gameid=1129&show_notecounts=1&sort=&sort_order=asc'
+TITLES_PAGE = 'https://zenius-i-vanisher.com/v5.2/gamedb.php?gameid=2979'
+NOTECOUNTS_PAGE = 'https://zenius-i-vanisher.com/v5.2/gamedb.php?gameid=2979&show_notecounts=1&sort=&sort_order=asc'
 
 
 def main():
     result_lists = []
     for url in [TITLES_PAGE, NOTECOUNTS_PAGE]:
         resp = requests.get(url)
-        soup = BeautifulSoup(resp.content)
+        soup = BeautifulSoup(resp.content, "html.parser")
         rows = soup.find_all('table')[2].find_all('tr')
         result_lists.append(rows)
 
