@@ -167,8 +167,9 @@ class SearchForm(forms.Form):
                             validators=RATING_VALIDATORS,
                             initial=MAX_RATING,
                             required=False)
-    level = forms.ChoiceField(label=_("LEVEL"),
+    play_style = forms.ChoiceField(label=_("PLAY STYLE"),
                               choices=PLAY_STYLE_CHOICES,
+                              initial=0,
                               widget=forms.RadioSelect(),
                               required=False)
     version = forms.MultipleChoiceField(label=_("VERSION"),

@@ -154,8 +154,8 @@ def get_charts_by_query(versions=None, difficulty=None, play_style=None,
     filters['difficulty__lte'] = maximum
     if 'genre' in params:
         filters['song__genre__icontains'] = params['genre']
-    if 'level' in params:
-        filters['type__in'] = {'0': ['0', '1', '2'], '1': ['3', '4', '5']}[params['level'][0]]
+    if 'play_style' in params:
+        filters['type__in'] = {'0': ['0', '1', '2'], '1': ['3', '4', '5']}[params['play_style'][0]]
     else:
         filters['type__in'] = {'SP': ['0', '1', '2'], 'DP': ['3', '4', '5']}[play_style or 'SP']
     ret = Chart.objects.filter(**filters).prefetch_related('song').order_by(
