@@ -108,7 +108,7 @@ def ratings_view(request):
     context['versions'] = generate_version_urls(game)
     context['levels'] = generate_level_urls(game)
 
-    context['nav_links'] = make_nav_links()
+    context['nav_links'] = make_nav_links(game=game)
 
     return render(request, 'ratings.html', context)
 

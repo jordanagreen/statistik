@@ -19,7 +19,7 @@ RATING_CHOICES = [[(i, str(i)) for i in arange(MIN_RATING, MAX_RATING[game]+.1, 
 #                             MinValueValidator(MIN_RATING)],
 #                      DDR: [MaxValueValidator(MAX_RATING[DDR]),
 #                             MinValueValidator(MIN_RATING)]}
-RATING_VALIDATORS = {g: [MaxValueValidator(MAX_RATING[g]), MinValueValidator(MIN_RATING)] for g in GAMES}
+RATING_VALIDATORS = {game: [MaxValueValidator(MAX_RATING[game]), MinValueValidator(MIN_RATING)] for game in GAMES}
 
 TECHNIQUE_CHOICES = {IIDX: [
         (0, _('Scratching')),

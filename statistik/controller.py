@@ -597,7 +597,7 @@ def create_page_title(context, title_elements):
     context['page_title'] = ' // '.join(['STATISTIK', context['title']])
 
 
-def make_nav_links(level=None, style='SP', version=None, user=None, elo=None,
+def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, elo=None,
                    clear_type=None):
     """
     Create nav links to display underneath page title
@@ -618,7 +618,7 @@ def make_nav_links(level=None, style='SP', version=None, user=None, elo=None,
                         reverse('ratings') + "?difficulty=%d&style=%s" % (
                             level, style)))
         if version:
-            version_display = FULL_VERSION_NAMES[version].upper()
+            version_display = FULL_VERSION_NAMES[game][version].upper()
             ret.append((_('ALL %(version)s %(style)s') % {'version': version_display,
                                                           'style': style},
                         reverse('ratings') + "?version=%d&style=%s" % (
@@ -629,7 +629,7 @@ def make_nav_links(level=None, style='SP', version=None, user=None, elo=None,
                         reverse('users')))
 
     else:
-        type_display = SCORE_CATEGORY_CHOICES[int(clear_type)][1]
+        type_display = SCORE_CATEGORY_CHOICES[game][int(clear_type)][1]
 
         if elo == 'match':
             ret.append(('ELO %d☆ %s' % (level, type_display) + _(' LIST'),

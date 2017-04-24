@@ -6,7 +6,7 @@ from statistik.constants import (CHART_TYPE_CHOICES,
                                  TECHNIQUE_CHOICES, VERSION_CHOICES, PLAYSIDE_CHOICES,
                                  RECOMMENDED_OPTIONS_CHOICES,
                                  RATING_VALIDATORS, SCORE_CATEGORY_CHOICES,
-                                 DIFFICULTY_SPIKE_CHOICES, IIDX)
+                                 DIFFICULTY_SPIKE_CHOICES, IIDX, GAMES)
 
 
 class Song(models.Model):
@@ -18,7 +18,7 @@ class Song(models.Model):
     genre = models.CharField(max_length=64, null=True, blank=True)
     bpm_min = models.SmallIntegerField()
     bpm_max = models.SmallIntegerField()
-    game_version = models.SmallIntegerField(choices=VERSION_CHOICES[IIDX])
+    game_version = models.SmallIntegerField(choices=[v for g in GAMES for v in VERSION_CHOICES[g]])
 
     def __str__(self):
         return self.title
