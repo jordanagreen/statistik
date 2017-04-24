@@ -17,13 +17,30 @@ def main():
 
 
     db = []
-    version = None
+    game_version = None
+    versions = {'DDR 1stMIX': 101,
+                'DDR 2ndMIX': 102,
+                'DDR 3rdMIX': 103,
+                'DDR 4thMIX': 104,
+                'DDR 5thMIX': 105,
+                'DDRMAX': 106,
+                'DDRMAX2': 107,
+                'DDR EXTREME': 108,
+                'DDR SuperNOVA': 109,
+                'DDR SuperNOVA2': 110,
+                'DDR X': 111,
+                'DDR X2': 112,
+                'DDR X3 VS 2ndMIX': 113,
+                'DDR 2013': 114,
+                'DDR 2014': 115,
+                'DDR A': 116}
 
-
+    id_counter = 0
     for rows in zip(*result_lists):
         h_row = [c.text for c in rows[0].find_all('th')]
         if h_row and h_row[0] != 'Song Name':
-            version = re.sub('\s*\d+ songs', '', h_row[0])
+            game_version = re.sub('\s*\d+ songs', '', h_row[0])
+            id_counter = 0
 
         else:
             s_row = [c.text for c in rows[0].find_all('td')]
@@ -33,15 +50,19 @@ def main():
 
                 song_name = s_row[0].strip()
                 artist = s_row[1].strip()
-                [min_bpm, max_bpm] = s_row[2].split('-') if '-' in s_row[2] else [
+                [bpm_min, bpm_max] = s_row[2].split('-') if '-' in s_row[2] else [
                     s_row[2], s_row[2]]
 
+                version = versions[game_version]
+                music_id = versions[game_version] * 1000 + id_counter
+
                 song = {
+                    'music_id': music_id,
                     'title': song_name,
                     'artist': artist,
-                    'min_bpm': min_bpm,
-                    'max_bpm': max_bpm,
-                    'version': version,
+                    'bpm_min': bpm_min,
+                    'bpm_max': bpm_max,
+                    'game_version': version,
                     'charts': {}
                 }
 
@@ -69,6 +90,8 @@ def main():
                                 'shock': vals[2]
                             }
                 db.append(song)
+                id_counter += 1
+                print(song_name, music_id)
 
     with open('ddr.json', 'w') as outfile:
         json.dump(db, outfile, indent=4)
