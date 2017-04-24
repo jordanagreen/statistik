@@ -144,6 +144,8 @@ def chart_view(request):
     context['difficulty'] = chart.difficulty
     context['chart_id'] = chart_id
 
+    game = chart.song.game_version // 100
+
     form_data = request.POST if request.method == 'POST' else None
     context['form'], context['review_exists'] = generate_review_form(
             request.user, chart_id, form_data)
@@ -151,7 +153,8 @@ def chart_view(request):
     # get reviews for this chart, cache users for username and playside lookup
     context['reviews'] = get_reviews_for_chart(chart_id)
 
-    context['nav_links'] = make_nav_links(level=chart.difficulty,
+    context['nav_links'] = make_nav_links(game=game,
+                                          level=chart.difficulty,
                                           style=chart.get_type_display()[:2],
                                           version=chart.song.game_version)
 

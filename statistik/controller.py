@@ -381,6 +381,9 @@ def get_reviews_for_chart(chart_id):
     chart_reviews = Review.objects.filter(chart=chart_id).prefetch_related(
         'user__userprofile')
 
+    # TODO: move getting game from id to a method at some point
+    game = Chart.objects.get(id=chart_id).song.game_version // 100
+
     # collect info to display for each review
     review_data = []
     for review in chart_reviews:
@@ -396,13 +399,13 @@ def get_reviews_for_chart(chart_id):
             'score_rating': str(review.score_rating or ""),
 
             'characteristics': [
-                (_(TECHNIQUE_CHOICES[x][1]), '#187638')
+                (_(TECHNIQUE_CHOICES[game][x][1]), '#187638')
                 if x in review.user.userprofile.best_techniques
-                else (_(TECHNIQUE_CHOICES[x][1]), '#000')
+                else (_(TECHNIQUE_CHOICES[game][x][1]), '#000')
                 for x in review.characteristics],
 
             'recommended_options': ', '.join([
-                 _(RECOMMENDED_OPTIONS_CHOICES[x][1])
+                 _(RECOMMENDED_OPTIONS_CHOICES[game][x][1])
                 for x in review.recommended_options])
         })
         if review.difficulty_spike:
