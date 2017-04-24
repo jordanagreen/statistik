@@ -56,6 +56,9 @@ def ratings_view(request):
     play_style = request.GET.get('style', 'SP')
     user = request.user.id
 
+    if versions:
+        game = int(versions[0]) // 100
+
     # remove any None keys to avoid having to check for them later
     params = {k: v for k, v in {
         'min_difficulty': request.GET.get('min_difficulty'),
