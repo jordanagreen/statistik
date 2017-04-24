@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from statistik.constants import PLAYSIDE_CHOICES, TECHNIQUE_CHOICES, \
     RECOMMENDED_OPTIONS_CHOICES, RATING_VALIDATORS, MAX_RATING, MIN_RATING, \
     localize_choices, DIFFICULTY_SPIKE_CHOICES, FULL_VERSION_NAMES, RATING_CHOICES, \
-    CHART_TYPE_CHOICES, VERSION_CHOICES, PLAY_STYLE_CHOICES
+    CHART_TYPE_CHOICES, VERSION_CHOICES, PLAY_STYLE_CHOICES, IIDX
 
 
 class RegisterForm(forms.Form):
@@ -18,7 +18,8 @@ class RegisterForm(forms.Form):
     playside = forms.ChoiceField(label=_("PLAYSIDE"), choices=PLAYSIDE_CHOICES)
     best_techniques = forms.MultipleChoiceField(label=_("MOST INSANE TECHNIQUES"),
                                                 help_text=_("Limit 3."),
-                                                choices=localize_choices(TECHNIQUE_CHOICES),
+                                                # TODO: see if this can be split into both games?
+                                                choices=localize_choices(TECHNIQUE_CHOICES[IIDX]),
                                                 widget=forms.CheckboxSelectMultiple(),
                                                 required=False)
 
@@ -48,32 +49,32 @@ class ReviewForm(forms.Form):
     clear_rating = forms.FloatField(label=_("NC RATING"),
                                     help_text=RANGE_HELP_TEXT,
                                     required=False,
-                                    validators=RATING_VALIDATORS)
+                                    validators=RATING_VALIDATORS[IIDX])
     hc_rating = forms.FloatField(label=_("HC RATING"),
                                  help_text=RANGE_HELP_TEXT,
                                  required=False,
-                                 validators=RATING_VALIDATORS)
+                                 validators=RATING_VALIDATORS[IIDX])
     exhc_rating = forms.FloatField(label=_("EXHC RATING"),
                                    help_text=RANGE_HELP_TEXT,
                                    required=False,
-                                   validators=RATING_VALIDATORS)
+                                   validators=RATING_VALIDATORS[IIDX])
     score_rating = forms.FloatField(label=_("SCORE RATING"),
                                     help_text=RANGE_HELP_TEXT,
                                     required=False,
-                                    validators=RATING_VALIDATORS)
+                                    validators=RATING_VALIDATORS[IIDX])
 
     difficulty_spike = forms.ChoiceField(label=_('DIFFICULTY FOCUS'),
                                          required=False,
                                          choices=DIFFICULTY_SPIKE_CHOICES)
 
     characteristics = forms.MultipleChoiceField(label=_("CHARACTERISTICS"),
-                                                choices=localize_choices(TECHNIQUE_CHOICES),
+                                                choices=localize_choices(TECHNIQUE_CHOICES[IIDX]),
                                                 widget=forms.CheckboxSelectMultiple(),
                                                 required=False)
 
     recommended_options = forms.MultipleChoiceField(
         label=_("RECOMMENDED OPTIONS (FOR YOUR PLAY SIDE)"),
-        choices=localize_choices(RECOMMENDED_OPTIONS_CHOICES),
+        choices=localize_choices(RECOMMENDED_OPTIONS_CHOICES[IIDX]),
         widget=forms.CheckboxSelectMultiple(),
         required=False,
     )
@@ -89,8 +90,8 @@ class ReviewForm(forms.Form):
     def is_valid(self, difficulty=None):
         if not super(ReviewForm, self).is_valid():
             return False
-        max_rating = min(difficulty + 2, MAX_RATING)
-        min_rating = max(difficulty - 2, MIN_RATING)
+        max_rating = min(difficulty + 2, MAX_RATING[IIDX])
+        min_rating = max(difficulty - 2, MIN_RATING[IIDX])
         for field in ['clear_rating', 'hc_rating', 'exhc_rating',
                       'score_rating']:
             rating = self.cleaned_data.get(field)
@@ -119,53 +120,53 @@ class SearchForm(forms.Form):
                             required=False)
     min_difficulty = RatingField(label=_("MIN DIFFICULTY"),
                                  choices=[(i, str(i)) for i in range(1, 13)],
-                                 validators=RATING_VALIDATORS,
+                                 validators=RATING_VALIDATORS[IIDX],
                                  initial=1,
                                  required=False)
     max_difficulty = RatingField(label=_("MAX DIFFICULTY"),
                                  choices=[(i, str(i)) for i in range(1, 13)],
-                                 validators=RATING_VALIDATORS,
+                                 validators=RATING_VALIDATORS[IIDX],
                                  initial=12,
                                  required=False)
     min_nc = RatingField(label=_("MIN NC RATING"),
-                         choices=RATING_CHOICES,
-                         validators=RATING_VALIDATORS,
+                         choices=RATING_CHOICES[IIDX],
+                         validators=RATING_VALIDATORS[IIDX],
                          initial=MIN_RATING,
                          required=False)
     max_nc = RatingField(label=_("MAX NC RATING"),
-                         choices=RATING_CHOICES,
-                         validators=RATING_VALIDATORS,
-                         initial=MAX_RATING,
+                         choices=RATING_CHOICES[IIDX],
+                         validators=RATING_VALIDATORS[IIDX],
+                         initial=MAX_RATING[IIDX],
                          required=False)
     min_hc = RatingField(label=_("MIN HC RATING"),
-                         choices=RATING_CHOICES,
-                         validators=RATING_VALIDATORS,
+                         choices=RATING_CHOICES[IIDX],
+                         validators=RATING_VALIDATORS[IIDX],
                          initial=MIN_RATING,
                          required=False)
     max_hc = RatingField(label=_("MAX HC RATING"),
-                         choices=RATING_CHOICES,
-                         validators=RATING_VALIDATORS,
-                         initial=MAX_RATING,
+                         choices=RATING_CHOICES[IIDX],
+                         validators=RATING_VALIDATORS[IIDX],
+                         initial=MAX_RATING[IIDX],
                          required=False)
     min_exhc = RatingField(label=_("MIN EXHC RATING"),
-                           choices=RATING_CHOICES,
-                           validators=RATING_VALIDATORS,
+                           choices=RATING_CHOICES[IIDX],
+                           validators=RATING_VALIDATORS[IIDX],
                            initial=MIN_RATING,
                            required=False)
     max_exhc = RatingField(label=_("MAX EXHC RATING"),
-                           choices=RATING_CHOICES,
-                           validators=RATING_VALIDATORS,
-                           initial=MAX_RATING,
+                           choices=RATING_CHOICES[IIDX],
+                           validators=RATING_VALIDATORS[IIDX],
+                           initial=MAX_RATING[IIDX],
                            required=False)
     min_score = RatingField(label=_("MIN SCORE RATING"),
-                           choices=RATING_CHOICES,
-                           validators=RATING_VALIDATORS,
+                           choices=RATING_CHOICES[IIDX],
+                           validators=RATING_VALIDATORS[IIDX],
                            initial=MIN_RATING,
                            required=False)
     max_score = RatingField(label=_("MAX SCORE RATING"),
-                            choices=RATING_CHOICES,
-                            validators=RATING_VALIDATORS,
-                            initial=MAX_RATING,
+                            choices=RATING_CHOICES[IIDX],
+                            validators=RATING_VALIDATORS[IIDX],
+                            initial=MAX_RATING[IIDX],
                             required=False)
     play_style = forms.ChoiceField(label=_("PLAY STYLE"),
                               choices=PLAY_STYLE_CHOICES,
@@ -173,11 +174,11 @@ class SearchForm(forms.Form):
                               widget=forms.RadioSelect(),
                               required=False)
     version = forms.MultipleChoiceField(label=_("VERSION"),
-                                        choices=[(i, n) for i, n in VERSION_CHOICES],
+                                        choices=[(i, n) for i, n in VERSION_CHOICES[IIDX]],
                                         widget=forms.CheckboxSelectMultiple(),
                                         required=False)
     techs = forms.MultipleChoiceField(label=_("TECHNIQUES"),
-                                                choices=TECHNIQUE_CHOICES,
+                                                choices=TECHNIQUE_CHOICES[IIDX],
                                                 widget=forms.CheckboxSelectMultiple,
                                                 required=False)
 

@@ -14,7 +14,7 @@ from django.utils.translation import ugettext as _
 from statistik.constants import (SCORE_CATEGORY_NAMES, TECHNIQUE_CHOICES,
                                  RECOMMENDED_OPTIONS_CHOICES,
                                  FULL_VERSION_NAMES, SCORE_CATEGORY_CHOICES,
-                                 localize_choices, MIN_RATING, MAX_RATING)
+                                 localize_choices, MIN_RATING, MAX_RATING, VERSION_CHOICES, IIDX, DDR)
 from statistik.forms import ReviewForm, RegisterForm
 from statistik.models import Chart, Review, UserProfile, EloReview
 
@@ -43,7 +43,7 @@ def organize_reviews(matched_reviews, user_id):
     return review_dict, user_reviewed
 
 
-def get_avg_ratings(chart_ids, user_id=None, include_reviews=False):
+def get_avg_ratings(chart_ids, game=IIDX, user_id=None, include_reviews=False):
     """
     Get average ratings for all charts.
     :param list chart_ids:  List of chart ids to retrieve ratings for
@@ -66,7 +66,7 @@ def get_avg_ratings(chart_ids, user_id=None, include_reviews=False):
         specific_reviews = organized_reviews.get(chart)
         if specific_reviews:
             # for each rating type, average the scores in matched reviews
-            for rating_type in SCORE_CATEGORY_NAMES:
+            for rating_type in SCORE_CATEGORY_NAMES[game]:
                 avg_rating = "%.1f" % round(statistics.mean(
                     [getattr(review, rating_type)
                      for review in specific_reviews
@@ -96,9 +96,9 @@ def get_avg_ratings(chart_ids, user_id=None, include_reviews=False):
                         'score_rating': review.score_rating,
 
                         'characteristics': [
-                            (_(TECHNIQUE_CHOICES[x][1]), '#187638')
+                            (_(TECHNIQUE_CHOICES[game][x][1]), '#187638')
                             if x in review.user.userprofile.best_techniques
-                            else (_(TECHNIQUE_CHOICES[x][1]), '#000')
+                            else (_(TECHNIQUE_CHOICES[game][x][1]), '#000')
                             for x in review.characteristics],
 
                         'recommended_options': ', '.join([
@@ -123,7 +123,7 @@ def get_charts_by_ids(ids):
     return Chart.objects.filter(pk__in=ids)
 
 
-def get_charts_by_query(versions=None, difficulty=None, play_style=None,
+def get_charts_by_query(game=IIDX, versions=None, difficulty=None, play_style=None,
                         params=None):
     """
     Chart lookup by game-related parameters
@@ -138,10 +138,13 @@ def get_charts_by_query(versions=None, difficulty=None, play_style=None,
 
     # create filters for songlist based off params
     filters = {}
-    if versions:
-        filters['song__game_version__in'] = versions
+    # if no version specified, limit to all versions of that game
+    # TODO: make sure all specified versions are from the same game
+    if not versions:
+        versions = [v for (v, n) in VERSION_CHOICES[game]]
+    filters['song__game_version__in'] = versions
     minimum = '1'
-    maximum = '12'
+    maximum = {IIDX: '12', DDR: '20'}[game]
     if difficulty:
         minimum = difficulty
         maximum = difficulty
@@ -152,12 +155,21 @@ def get_charts_by_query(versions=None, difficulty=None, play_style=None,
             maximum = params['max_difficulty']
     filters['difficulty__gte'] = minimum
     filters['difficulty__lte'] = maximum
-    if 'genre' in params:
+    if game == IIDX and 'genre' in params:
         filters['song__genre__icontains'] = params['genre']
+    # play type, SP or DP
     if 'play_style' in params:
-        filters['type__in'] = {'0': ['0', '1', '2'], '1': ['3', '4', '5']}[params['play_style'][0]]
+        filters['type__in'] = {IIDX:
+                                   {'0': ['0', '1', '2'],
+                                    '1': ['3', '4', '5']},
+                               DDR: {'0': ['100', '101', '102', '103', '104'],
+                                     '1': ['105', '106', '107', '108']}}[game][params['level'][0]]
     else:
-        filters['type__in'] = {'SP': ['0', '1', '2'], 'DP': ['3', '4', '5']}[play_style or 'SP']
+        filters['type__in'] = {IIDX:
+                                   {'SP': ['0', '1', '2'],
+                                    'DP': ['3', '4', '5']},
+                               DDR: {'SP': ['100', '101', '102', '103', '104'],
+                                     'DP': ['105', '106', '107', '108']}}[game][play_style or 'SP']
     ret = Chart.objects.filter(**filters).prefetch_related('song').order_by(
         'song__game_version', 'song__title', 'type')
     # if searching for a title, check if it's in either main or alt title
@@ -177,7 +189,7 @@ def get_charts_by_query(versions=None, difficulty=None, play_style=None,
     return ret
 
 
-def get_chart_data(versions=None, difficulty=None, play_style=None, user=None,
+def get_chart_data(game=IIDX, versions=None, difficulty=None, play_style=None, user=None,
                    params=None, include_reviews=False, ):
     """
     Retrieve chart data acc to specified params and format chart data for
@@ -190,11 +202,11 @@ def get_chart_data(versions=None, difficulty=None, play_style=None, user=None,
     :rtype list:            List of dicts containing chart data
     """
 
-    matched_charts = get_charts_by_query(versions, difficulty, play_style, params)
+    matched_charts = get_charts_by_query(game, versions, difficulty, play_style, params)
     matched_chart_ids = [chart.id for chart in matched_charts]
 
     # get avg ratings for the charts in the returned queryset
-    avg_ratings = get_avg_ratings(matched_chart_ids, user, include_reviews)
+    avg_ratings = get_avg_ratings(matched_chart_ids, game, user, include_reviews)
 
     chart_data = []
     for chart in matched_charts:

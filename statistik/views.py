@@ -49,6 +49,7 @@ def ratings_view(request):
     Assemble ratings page. Possible filters include difficulty and version.
     :rtype dict: Context including chart data
     """
+    # TODO: see if game can be removed from the url params
     game = int(request.GET.get('game', 0))
     difficulty = request.GET.get('difficulty')
     versions = request.GET.getlist('version')
@@ -78,7 +79,7 @@ def ratings_view(request):
     if not request.GET.get('submit') and not (difficulty or versions):
         difficulty = 12
 
-    chart_data = get_chart_data(versions, difficulty, play_style, user, params,
+    chart_data = get_chart_data(game, versions, difficulty, play_style, user, params,
                                 include_reviews=bool(request.GET.get('json')))
 
     if request.GET.get('json') == 'true':
@@ -95,10 +96,10 @@ def ratings_view(request):
     if request.GET.get('submit'):
         title_elements.append('SEARCH RESULTS')
     else:
+        title_elements.insert(0, {0: 'IIDX', 1: 'DDR'}[game])
         if versions:
-            title_elements.append(FULL_VERSION_NAMES[int(version)].upper())
-        if difficulty or not (difficulty or version):
-            title_elements.insert(0, {0: 'IIDX', 1: 'DDR'}[game])
+            title_elements.append(FULL_VERSION_NAMES[game][int(versions[0])].upper())
+        if difficulty or not (difficulty or versions[0]):
             title_elements.append('LV. ' + str(difficulty or 12))
         title_elements.append(play_style)
     create_page_title(context, title_elements)

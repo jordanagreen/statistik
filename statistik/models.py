@@ -6,7 +6,7 @@ from statistik.constants import (CHART_TYPE_CHOICES,
                                  TECHNIQUE_CHOICES, VERSION_CHOICES, PLAYSIDE_CHOICES,
                                  RECOMMENDED_OPTIONS_CHOICES,
                                  RATING_VALIDATORS, SCORE_CATEGORY_CHOICES,
-                                 DIFFICULTY_SPIKE_CHOICES)
+                                 DIFFICULTY_SPIKE_CHOICES, IIDX)
 
 
 class Song(models.Model):
@@ -18,7 +18,7 @@ class Song(models.Model):
     genre = models.CharField(max_length=64)
     bpm_min = models.SmallIntegerField()
     bpm_max = models.SmallIntegerField()
-    game_version = models.SmallIntegerField(choices=VERSION_CHOICES)
+    game_version = models.SmallIntegerField(choices=VERSION_CHOICES[IIDX])
 
     def __str__(self):
         return self.title
@@ -29,7 +29,7 @@ class Song(models.Model):
 
 class Chart(models.Model):
     song = models.ForeignKey(Song)
-    type = models.SmallIntegerField(choices=CHART_TYPE_CHOICES)
+    type = models.SmallIntegerField(choices=CHART_TYPE_CHOICES[IIDX])
     difficulty = models.SmallIntegerField(validators=[
         MaxValueValidator(12),
         MinValueValidator(1)
@@ -53,7 +53,7 @@ class EloReview(models.Model):
     second = models.ForeignKey(Chart, related_name='eloreview_lose_set')
     drawn = models.BooleanField()
     created_at = models.DateTimeField(auto_now=True)
-    type = models.SmallIntegerField(choices=SCORE_CATEGORY_CHOICES)
+    type = models.SmallIntegerField(choices=SCORE_CATEGORY_CHOICES[IIDX])
     created_by = models.ForeignKey(User, null=True)
 
 
@@ -62,19 +62,19 @@ class Review(models.Model):
     user = models.ForeignKey(User)
     text = models.CharField(max_length=256, blank=True)
     clear_rating = models.FloatField(null=True,
-                                     validators=RATING_VALIDATORS)
+                                     validators=RATING_VALIDATORS[IIDX])
     hc_rating = models.FloatField(null=True,
-                                  validators=RATING_VALIDATORS)
+                                  validators=RATING_VALIDATORS[IIDX])
     exhc_rating = models.FloatField(null=True,
-                                    validators=RATING_VALIDATORS)
+                                    validators=RATING_VALIDATORS[IIDX])
     score_rating = models.FloatField(null=True,
-                                     validators=RATING_VALIDATORS)
+                                     validators=RATING_VALIDATORS[IIDX])
     difficulty_spike = models.SmallIntegerField(default=0,
                                                 choices=DIFFICULTY_SPIKE_CHOICES)
     characteristics = ArrayField(
-        models.IntegerField(choices=TECHNIQUE_CHOICES), null=True)
+        models.IntegerField(choices=TECHNIQUE_CHOICES[IIDX]), null=True)
     recommended_options = ArrayField(models.IntegerField(
-        choices=RECOMMENDED_OPTIONS_CHOICES), null=True)
+        choices=RECOMMENDED_OPTIONS_CHOICES[IIDX]), null=True)
     created_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -90,7 +90,7 @@ class UserProfile(models.Model):
     location = models.CharField(max_length=64)
     play_side = models.SmallIntegerField(choices=PLAYSIDE_CHOICES)
     best_techniques = ArrayField(
-        models.IntegerField(choices=TECHNIQUE_CHOICES), size=3)
+        models.IntegerField(choices=TECHNIQUE_CHOICES[IIDX]), size=3)
     max_reviewable = models.SmallIntegerField(validators=[
         MaxValueValidator(12),
         MinValueValidator(0)
