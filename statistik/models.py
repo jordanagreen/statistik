@@ -15,7 +15,7 @@ class Song(models.Model):
     alt_title = models.CharField(max_length=64, null=True, blank=True)
     artist = models.CharField(max_length=64)
     alt_artist = models.CharField(max_length=64, null=True, blank=True)
-    genre = models.CharField(max_length=64)
+    genre = models.CharField(max_length=64, null=True, blank=True)
     bpm_min = models.SmallIntegerField()
     bpm_max = models.SmallIntegerField()
     game_version = models.SmallIntegerField(choices=VERSION_CHOICES[IIDX])
