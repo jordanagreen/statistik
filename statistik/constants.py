@@ -34,7 +34,7 @@ TECHNIQUE_CHOICES = {IIDX: [
         (9, _('Chords'))
     ],
     DDR: [(0, _('Crossovers')),
-        (1, _('Jumps')),
+        (1, _('Gallops')),
         (2, _('Speed Changes')),
         (3, _('Freeze Notes')),
         (4, _('Shock Arrows')),
