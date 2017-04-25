@@ -230,6 +230,8 @@ def get_chart_data(game=IIDX, versions=None, difficulty=None, play_style=None, u
             else chart.song.title,
 
             'note_count': chart.note_count or '--',
+            'bpm_min': chart.song.bpm_min or '--',
+            'bpm_max': chart.song.bpm_max or '--',
             'difficulty': chart.difficulty,
 
             'avg_clear_rating': str(avg_ratings[chart.id].get(
