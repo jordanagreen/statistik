@@ -13,7 +13,7 @@ from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 from statistik.constants import (FULL_VERSION_NAMES, generate_version_urls,
                                  generate_level_urls, SCORE_CATEGORY_CHOICES,
-                                 generate_elo_level_urls)
+                                 generate_elo_level_urls, IIDX)
 from statistik.controller import (get_chart_data, generate_review_form,
                                   get_charts_by_ids, get_reviews_for_chart,
                                   get_reviews_for_user, get_user_list,
@@ -50,7 +50,7 @@ def ratings_view(request):
     :rtype dict: Context including chart data
     """
     # TODO: see if game can be removed from the url params
-    game = int(request.GET.get('game', 0))
+    game = int(request.GET.get('game', IIDX))
     difficulty = request.GET.get('difficulty')
     versions = request.GET.getlist('version')
     play_style = request.GET.get('style', 'SP')
@@ -58,6 +58,7 @@ def ratings_view(request):
 
     if versions:
         game = int(versions[0]) // 100
+    # TODO: have the nav link for all songs of that level show songs from the right game
 
     # remove any None keys to avoid having to check for them later
     params = {k: v for k, v in {
@@ -113,7 +114,10 @@ def ratings_view(request):
 
     context['nav_links'] = make_nav_links(game=game)
 
-    return render(request, 'ratings.html', context)
+    if game == IIDX:
+        return render(request, 'ratings_iidx.html', context)
+    else:
+        return render(request, 'ratings_ddr.html', context)
 
 
 def chart_view(request):
@@ -155,10 +159,11 @@ def chart_view(request):
 
     # get reviews for this chart, cache users for username and playside lookup
     context['reviews'] = get_reviews_for_chart(chart_id)
+    style = chart.get_type_display()[:2] if game == 0 else chart.get_type_display()[1:]
 
     context['nav_links'] = make_nav_links(game=game,
                                           level=chart.difficulty,
-                                          style=chart.get_type_display()[:2],
+                                          style=style,
                                           version=chart.song.game_version)
 
     return render(request, 'chart.html', context)
