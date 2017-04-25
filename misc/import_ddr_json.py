@@ -47,7 +47,7 @@ def main():
 
                 chart = Chart(
                     song=Song.objects.get(music_id=music_id),
-                    type=type,
+                    type=type + 100,
                     difficulty=difficulty,
                     note_count=note_count
                 )

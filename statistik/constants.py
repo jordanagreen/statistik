@@ -82,14 +82,16 @@ CHART_TYPE_CHOICES = {IIDX: [
         (4, 'DPH'),
         (5, 'DPA')
     ],
-    DDR: [(0, 'BSP'),
-        (1, 'DSP'),
-        (2, 'ESP'),
-        (3, 'CSP'),
-        (4, 'BDP'),
-        (5, 'DDP'),
-        (6, 'EDP'),
-        (7, 'CDP')]}
+    DDR: [
+        (100, 'BEG'),
+        (101, 'BSP'),
+        (102, 'DSP'),
+        (103, 'ESP'),
+        (104, 'CSP'),
+        (105, 'BDP'),
+        (106, 'DDP'),
+        (107, 'EDP'),
+        (108, 'CDP')]}
 
 PLAY_STYLE_CHOICES = [
     (0, 'SP'),
