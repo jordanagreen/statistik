@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from statistik.constants import PLAYSIDE_CHOICES, TECHNIQUE_CHOICES, \
     RECOMMENDED_OPTIONS_CHOICES, RATING_VALIDATORS, MAX_RATING, MIN_RATING, \
     localize_choices, DIFFICULTY_SPIKE_CHOICES, FULL_VERSION_NAMES, RATING_CHOICES, \
-    CHART_TYPE_CHOICES, VERSION_CHOICES, PLAY_STYLE_CHOICES, IIDX
+    CHART_TYPE_CHOICES, VERSION_CHOICES, PLAY_STYLE_CHOICES, IIDX, DDR
 
 
 class RegisterForm(forms.Form):
@@ -37,8 +37,12 @@ class RegisterForm(forms.Form):
 
         return True
 
+# TODO: see if this can be made back into just ReviewForm, wasn't letting me just have a game parameter
+# because form fields are set when the class is imported and game isn't known until an instance is made much later
 
-class ReviewForm(forms.Form):
+
+class IIDXReviewForm(forms.Form):
+
     RANGE_HELP_TEXT = _("Range: 1.0-14.0.")
 
     text = forms.CharField(label=_("REVIEW TEXT"),
@@ -80,7 +84,7 @@ class ReviewForm(forms.Form):
     )
 
     def clean(self):
-        cleaned_data = super(ReviewForm, self).clean()
+        cleaned_data = super(IIDXReviewForm, self).clean()
         for attr in ['clear_rating', 'hc_rating', 'exhc_rating',
                      'score_rating']:
             if cleaned_data.get(attr):
@@ -88,12 +92,67 @@ class ReviewForm(forms.Form):
         return cleaned_data
 
     def is_valid(self, difficulty=None):
-        if not super(ReviewForm, self).is_valid():
+        if not super(IIDXReviewForm, self).is_valid():
             return False
         max_rating = min(difficulty + 2, MAX_RATING[IIDX])
         min_rating = max(difficulty - 2, MIN_RATING[IIDX])
         for field in ['clear_rating', 'hc_rating', 'exhc_rating',
                       'score_rating']:
+            rating = self.cleaned_data.get(field)
+            if rating is not None and not min_rating <= rating <= max_rating:
+                self.add_error(field,
+                               _('Please rate within 2.0 of actual difficulty.'))
+                return False
+        return True
+
+
+class DDRReviewForm(forms.Form):
+
+    RANGE_HELP_TEXT = _("Range: 1.0-14.0.")
+
+    text = forms.CharField(label=_("REVIEW TEXT"),
+                           help_text=_("Optional, limit 256 characters."),
+                           max_length=256,
+                           widget=forms.Textarea(
+                               attrs={'rows': 4, 'cols': 15}), required=False)
+    clear_rating = forms.FloatField(label=_("NC RATING"),
+                                    help_text=RANGE_HELP_TEXT,
+                                    required=False,
+                                    validators=RATING_VALIDATORS[DDR])
+    score_rating = forms.FloatField(label=_("SCORE RATING"),
+                                    help_text=RANGE_HELP_TEXT,
+                                    required=False,
+                                    validators=RATING_VALIDATORS[DDR])
+
+    difficulty_spike = forms.ChoiceField(label=_('DIFFICULTY FOCUS'),
+                                         required=False,
+                                         choices=DIFFICULTY_SPIKE_CHOICES)
+
+    characteristics = forms.MultipleChoiceField(label=_("CHARACTERISTICS"),
+                                                choices=localize_choices(TECHNIQUE_CHOICES[DDR]),
+                                                widget=forms.CheckboxSelectMultiple(),
+                                                required=False)
+
+    recommended_options = forms.MultipleChoiceField(
+        label=_("RECOMMENDED OPTIONS"),
+        choices=localize_choices(RECOMMENDED_OPTIONS_CHOICES[DDR]),
+        widget=forms.CheckboxSelectMultiple(),
+        required=False,
+    )
+
+    def clean(self):
+        cleaned_data = super(DDRReviewForm, self).clean()
+        for attr in ['clear_rating', 'score_rating']:
+            if cleaned_data.get(attr):
+                cleaned_data[attr] = round(cleaned_data[attr], 1)
+        return cleaned_data
+
+    def is_valid(self, difficulty=None):
+        if not super(DDRReviewForm, self).is_valid():
+            return False
+        max_rating = min(difficulty + 2, MAX_RATING[DDR])
+        min_rating = max(difficulty - 2, MIN_RATING[DDR])
+        for field in ['clear_rating', 'score_rating']:
             rating = self.cleaned_data.get(field)
             if rating is not None and not min_rating <= rating <= max_rating:
                 self.add_error(field,
