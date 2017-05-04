@@ -174,8 +174,10 @@ def chart_view(request):
                                           level=chart.difficulty,
                                           style=style,
                                           version=chart.song.game_version)
-
-    return render(request, 'chart.html', context)
+    if game == IIDX:
+        return render(request, 'chart_iidx.html', context)
+    else:
+        return render(request, 'chart_ddr.html', context)
 
 
 def elo_view(request):
