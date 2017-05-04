@@ -18,8 +18,7 @@
             <td class="sorttable_numeric" style="background-color: #3d393f;width: 5%">LV</td>
             <td class="sortable_alpha" style="background-color: #3d393f;width: 41%">{% trans 'SONG TITLE' %}</td>
             <td style="background-color: #3d393f;width: 7%">{% trans 'NOTE COUNT ' %}</td>
-            <td style="background-color: #3d393f;width: 7%">{%  trans 'MIN BPM ' %}</td>
-            <td style="background-color: #3d393f;width: 7%">{% trans 'MAX BPM ' %}</td>
+            <td style="background-color: #3d393f;width: 7%">{% trans 'BPM ' %}</td>
             <td style="background-color: #3d393f;width: 7%">{% trans 'CLEAR RATING ' %}</td>
             <td style="background-color: #3d393f;width: 7%">{% trans 'SCORE RATING ' %}</td>
         </tr>
@@ -46,10 +45,9 @@
             <td class="title_col" sorttable_customkey="{{ chart.alt_title }}"><a style="color: #000;" href="{% url 'chart' %}?id={{ chart.id }}"> {{ chart.title }}</a></td>
             <td class="notecount_col">{{ chart.note_count }}</td>
             {% if chart.bpm_min == chart.bpm_max %}
-                <td class="bpm_col" colspan="2">{{ chart.bpm_min | default:"--" }}</td>
-            {% else %}
                 <td class="bpm_col">{{ chart.bpm_min | default:"--" }}</td>
-                <td class="bpm_col">{{ chart.bpm_max | default:"--" }}</td>
+            {% else %}
+                <td class="bpm_col">{{ chart.bpm_min }} - {{ chart.bpm_max }}</td>
             {% endif %}
             <td class="nc_col">{{ chart.avg_clear_rating | default:"--" }}</td>
             <td class="score_col">{{  chart.avg_score_rating | default:"--" }}</td>
