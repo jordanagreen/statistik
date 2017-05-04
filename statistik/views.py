@@ -226,6 +226,7 @@ def elo_view(request):
             title_elements = ['ELO', GAMES[game] + ' ' + level + '☆ ' + type_display + _(' MATCHING')]
 
     create_page_title(context, title_elements)
+    context['game'] = game
     context['level'] = level
     context['is_hc'] = clear_type
     context['is_hc_display'] = type_display
