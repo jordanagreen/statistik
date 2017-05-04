@@ -14,8 +14,8 @@ from django.utils.translation import ugettext as _
 from statistik.constants import (SCORE_CATEGORY_NAMES, TECHNIQUE_CHOICES,
                                  RECOMMENDED_OPTIONS_CHOICES,
                                  FULL_VERSION_NAMES, SCORE_CATEGORY_CHOICES,
-                                 localize_choices, MIN_RATING, MAX_RATING, VERSION_CHOICES, IIDX, DDR)
-from statistik.forms import ReviewForm, RegisterForm
+                                 localize_choices, MIN_RATING, MAX_RATING, VERSION_CHOICES, IIDX, DDR, GAMES)
+from statistik.forms import RegisterForm, DDRReviewForm, IIDXReviewForm
 from statistik.models import Chart, Review, UserProfile, EloReview
 
 
@@ -284,7 +284,7 @@ def generate_review_form(user, chart_id, form_data=None):
     :rtype tuple:           (ReviewForm, bool indicating if user reviewed chart)
     """
     chart = Chart.objects.get(pk=chart_id)
-
+    game = chart.song.game_version // 100
     # if user is authenticated and can review this chart, display review form
     if user.is_authenticated():
         user_profile = UserProfile.objects.filter(user=user).first()
@@ -293,7 +293,10 @@ def generate_review_form(user, chart_id, form_data=None):
 
             # handle incoming reviews
             if form_data:
-                form = ReviewForm(form_data)
+                if game == IIDX:
+                    form = IIDXReviewForm(form_data)
+                else:
+                    form = DDRReviewForm(form_data)
                 if form.is_valid(difficulty=chart.difficulty):
                     Review.objects.update_or_create(chart=chart,
                                                     user=user,
@@ -306,25 +309,42 @@ def generate_review_form(user, chart_id, form_data=None):
                     user=user, chart=chart).first()
                 # if they do, pre-populate the form fields with this review
                 if user_review:
-                    data = {key: getattr(user_review, key)
-                            for key in ['text',
-                                        'clear_rating',
-                                        'hc_rating',
-                                        'exhc_rating',
-                                        'score_rating',
-                                        'characteristics',
-                                        'difficulty_spike',
-                                        'recommended_options']}
-                    form = ReviewForm(data)
+                    if game == IIDX:
+                        data = {key: getattr(user_review, key)
+                                for key in ['text',
+                                            'clear_rating',
+                                            'hc_rating',
+                                            'exhc_rating',
+                                            'score_rating',
+                                            'characteristics',
+                                            'difficulty_spike',
+                                            'recommended_options']}
+                        form = IIDXReviewForm(data)
+                    else:
+                        data = {key: getattr(user_review, key)
+                                for key in ['text',
+                                            'clear_rating',
+                                            'score_rating',
+                                            'characteristics',
+                                            'difficulty_spike',
+                                            'recommended_options']}
+                        form = DDRReviewForm(data)
                     has_reviewed = True
 
                 # if they don't, create a blank form
                 else:
-                    form = ReviewForm()
-            if chart.type < 3:
-                form.fields.get('recommended_options').choices = localize_choices(RECOMMENDED_OPTIONS_CHOICES[:5])
-            else:
-                form.fields.get('recommended_options').choices = localize_choices(RECOMMENDED_OPTIONS_CHOICES[5:])
+                    if game == IIDX:
+                        form = IIDXReviewForm()
+                    else:
+                        form = DDRReviewForm()
+            # iidx has doubles-exclusive options
+            if game == IIDX:
+                if chart.type < 3:
+                    form.fields.get('recommended_options').choices = localize_choices(
+                        RECOMMENDED_OPTIONS_CHOICES[game][:5])
+                else:
+                    form.fields.get('recommended_options').choices = localize_choices(
+                        RECOMMENDED_OPTIONS_CHOICES[game][5:])
             return form, has_reviewed
     return None, None
 
@@ -606,6 +626,7 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
                    clear_type=None):
     """
     Create nav links to display underneath page title
+    :param int game:        The game that links should lead to
     :param int level:       Add a link to all songs of this level
     :param str style:       'SP' or 'DP'
     :param int version:     Add a link too all song from this version
@@ -614,8 +635,9 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
     :param int clear_type:  Rating type (refer to Chart model for options)
     :rtype list:            List of tuples of format (link text, link)
     """
-    ret = [(_('INDEX'), reverse('index')),
-           (_('SEARCH'), reverse('search'))]
+
+    ret = [(_('INDEX'), reverse('index') + '?game=' + str(game)),
+           (_('SEARCH'), reverse('search') + '?game=' + str(game))]
     if not elo:
         if level:
             ret.append((_('ALL %(level)d☆ %(style)s') % {'level': level,
@@ -645,6 +667,19 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
                         reverse('elo') + '?level=%d&type=%d' % (
                             level, clear_type)))
 
+    return ret
+
+
+def make_game_links(game=IIDX):
+    """
+    Create links to other games to be displayed on the index page
+    :param game: The current game, which should not be displayed
+    :rtype list: List of tuples of format (link text, link)
+    """
+    ret = []
+    for g in GAMES:
+        if g != game:
+            ret.append((GAMES[g], reverse('index') + '?game=' + str(g)))
     return ret
 
 

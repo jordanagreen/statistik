@@ -6,9 +6,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
 from numpy import arange
 
+# TODO: see if this can be reversed so the name can be used in the url instead of a number
 IIDX = 0
 DDR = 1
-GAMES = [IIDX, DDR]
+GAMES = {IIDX: 'IIDX', DDR: 'DDR'}
 
 MAX_RATING = {IIDX: 14.0, DDR: 20.0}
 MIN_RATING = 1.0

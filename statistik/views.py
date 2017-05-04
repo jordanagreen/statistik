@@ -13,14 +13,14 @@ from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 from statistik.constants import (FULL_VERSION_NAMES, generate_version_urls,
                                  generate_level_urls, SCORE_CATEGORY_CHOICES,
-                                 generate_elo_level_urls, IIDX)
+                                 generate_elo_level_urls, IIDX, DDR, GAMES)
 from statistik.controller import (get_chart_data, generate_review_form,
                                   get_charts_by_ids, get_reviews_for_chart,
                                   get_reviews_for_user, get_user_list,
                                   create_new_user, elo_rate_charts,
                                   get_elo_rankings, make_elo_matchup,
                                   create_page_title, make_nav_links,
-                                  generate_user_form, delete_review)
+                                  generate_user_form, delete_review, make_game_links)
 from statistik.forms import RegisterForm, SearchForm
 
 
@@ -30,6 +30,8 @@ def index(request):
     :param request: Request to handle
     :rtype HTTPResponse:
     """
+
+    game = int(request.GET.get('game', IIDX))
     context = {
         'index_links': [
             (_('STANDARD RATINGS'), reverse('ratings')),
@@ -38,8 +40,10 @@ def index(request):
             (_('SEARCH'), reverse('search'))
         ],
 
-        'title': 'STATISTIK // ' + _('INDEX'),
-        'page_title': 'STATISTIK // ' + _('INDEX')
+        'title': 'STATISTIK // ' + _('INDEX') + ' // ' + GAMES[game],
+        'page_title': 'STATISTIK // ' + _('INDEX') + ' // ' + GAMES[game],
+        'game': game,
+        'game_links': make_game_links(game)
     }
     return render(request, 'index.html', context)
 
@@ -159,7 +163,12 @@ def chart_view(request):
 
     # get reviews for this chart, cache users for username and playside lookup
     context['reviews'] = get_reviews_for_chart(chart_id)
-    style = chart.get_type_display()[:2] if game == 0 else chart.get_type_display()[1:]
+    if game == IIDX:
+        style = chart.get_type_display()[:2]
+    else:
+        style = chart.get_type_display()[1:]
+        if style[0] == 'E':
+            style = 'SP'
 
     context['nav_links'] = make_nav_links(game=game,
                                           level=chart.difficulty,

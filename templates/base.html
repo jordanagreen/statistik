@@ -39,6 +39,16 @@
                 {% endfor %}
             </div>
         {% endif %}
+    {% if game_links %}
+            <br>
+            <br>
+            <br>
+            <div style="float: left">
+                {% for link in game_links %}
+                    <a style="color: #000;padding-right: 10px;font-weight: 600;text-decoration: underline" href="{{ link.1 }}">// {{ link.0 }} </a>
+                {% endfor %}
+            </div>
+        {% endif %}
 
     </div>
 
