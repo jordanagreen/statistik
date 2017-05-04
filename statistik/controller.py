@@ -577,14 +577,19 @@ def elo_rate_charts(chart1_id, chart2_id, user, draw=False, rate_type=0):
                                  created_by=user)
 
 
-def get_elo_rankings(level, rate_type):
+def get_elo_rankings(game, level, rate_type):
     """
     Get songs ranked by Elo ranking, formatted for template usage
-    :param int level:       Level to sort by (1-12)
+    :param int game:        The game to get songs from (0-1)
+    :param int level:       Level of songs to sort by (1-12) for IIDX, (1-19) for DDR
     :param str rate_type:   Rating type (refer to Chart model for options)
     :rtype list:            List of dicts containing chart/ranking data
     """
-    matched_charts = Chart.objects.filter(difficulty=int(level), type__lt=3) \
+    # TODO: just add a game field to song model at some point so this can be avoided
+    versions = [str(v[0]) for v in VERSION_CHOICES[game]]
+    # singles difficulties only
+    sng = {IIDX: [str(i) for i in range(0, 3)], DDR: [str(i) for i in range(100, 105)]}
+    matched_charts = Chart.objects.filter(difficulty=int(level), type__in=sng[game], song__game_version__in=versions) \
         .prefetch_related('song').order_by('-' + rate_type)
 
     # assemble displayed elo info for matched charts
@@ -602,15 +607,19 @@ def get_elo_rankings(level, rate_type):
     return chart_data
 
 
-def make_elo_matchup(level):
+def make_elo_matchup(game, level):
     """
     Match two charts for an Elo ranking and format the data for template usage
-    :param int level:   Level of songs to match (1-12)
+    :param int game:    The game to match songs from (0-1)
+    :param int level:   Level of songs to match (1-12) for IIDX, (1-19) for DDR
     :rtype list:        List of dicts of chart info
     """
     elo_diff = 9001
     chart1 = chart2 = None
-    charts = list(Chart.objects.filter(difficulty=int(level), type__lt=3))
+    versions = [str(v[0]) for v in VERSION_CHOICES[game]]
+    # singles difficulties only
+    sng = {IIDX: [str(i) for i in range(0, 3)], DDR: [str(i) for i in range(100, 105)]}
+    charts = list(Chart.objects.filter(difficulty=int(level), type__in=sng[game], song__game_version__in=versions))
 
     # only return closely-matched charts for better rankings
     while elo_diff > 50:
@@ -673,11 +682,11 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
         type_display = SCORE_CATEGORY_CHOICES[game][int(clear_type)][1]
 
         if elo == 'match':
-            ret.append(('ELO %d☆ %s' % (level, type_display) + _(' LIST'),
+            ret.append(('ELO %s %d☆ %s' % (GAMES[game], level, type_display) + _(' LIST'),
                         reverse('elo') + '?level=%d&type=%d&list=true' % (
                             level, clear_type)))
         elif elo == 'list':
-            ret.append(('ELO %d☆ %s' % (level, type_display) + _(' MATCHING'),
+            ret.append(('ELO %s %d☆ %s' % (GAMES[game], level, type_display) + _(' MATCHING'),
                         reverse('elo') + '?level=%d&type=%d' % (
                             level, clear_type)))
 

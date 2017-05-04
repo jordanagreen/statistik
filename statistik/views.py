@@ -191,6 +191,7 @@ def elo_view(request):
     level = request.GET.get('level', '12')
     display_list = bool(request.GET.get('list'))
     clear_type = int(request.GET.get('type', 0))
+    game = int(request.GET.get('game', IIDX))
 
     if not (display_list or request.user.is_authenticated()):
         return HttpResponseRedirect(
@@ -199,7 +200,7 @@ def elo_view(request):
 
     # TODO extend to accommodate exhc and score types
     rate_type_column = 'elo_rating_hc' if clear_type == 1 else 'elo_rating'
-    type_display = SCORE_CATEGORY_CHOICES[clear_type][1]
+    type_display = SCORE_CATEGORY_CHOICES[game][clear_type][1]
 
     # handle incoming elo reviews
     # TODO don't use GET for this
@@ -215,14 +216,14 @@ def elo_view(request):
         if display_list:
             # display list of charts ranked by elo
             # TODO fix line length
-            context['chart_list'] = get_elo_rankings(level, rate_type_column)
-            title_elements = ['ELO', level + '☆ ' + type_display + _(' LIST')]
+            context['chart_list'] = get_elo_rankings(game, level, rate_type_column)
+            title_elements = ['ELO', GAMES[game] + ' ' + level + '☆ ' + type_display + _(' LIST')]
         else:
             # display two songs to rank
-            [context['chart1'], context['chart2']] = make_elo_matchup(level)
+            [context['chart1'], context['chart2']] = make_elo_matchup(game, level)
 
             # add page title
-            title_elements = ['ELO', level + '☆ ' + type_display + _(' MATCHING')]
+            title_elements = ['ELO', GAMES[game] + ' ' + level + '☆ ' + type_display + _(' MATCHING')]
 
     create_page_title(context, title_elements)
     context['level'] = level
@@ -232,7 +233,8 @@ def elo_view(request):
     context['nav_links'] = make_nav_links(
             level=int(level),
             elo='list' if display_list else 'match',
-            clear_type=clear_type)
+            clear_type=clear_type,
+            game=game)
     return render(request, 'elo_rating.html', context)
 
 
