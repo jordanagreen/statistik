@@ -450,7 +450,9 @@ def get_reviews_for_user(user_id):
     # assemble display info for these reviews
     review_data = []
     for review in matched_reviews:
+        game = review.chart.song.game_version // 100
         review_data.append({
+            'game': GAMES[game],
             'title': review.chart.song.title,
             'text': review.text,
             'chart_id': review.chart.id,
@@ -463,13 +465,13 @@ def get_reviews_for_user(user_id):
             'score_rating': str(review.score_rating or ""),
 
             'characteristics': [
-                (TECHNIQUE_CHOICES[x][1], '#187638')
+                (TECHNIQUE_CHOICES[game][x][1], '#187638')
                 if x in review.user.userprofile.best_techniques
-                else (_(TECHNIQUE_CHOICES[x][1]), '#000')
+                else (_(TECHNIQUE_CHOICES[game][x][1]), '#000')
                 for x in review.characteristics],
 
             'recommended_options': ', '.join([
-                 _(RECOMMENDED_OPTIONS_CHOICES[x][1])
+                 _(RECOMMENDED_OPTIONS_CHOICES[game][x][1])
                  for x in review.recommended_options])
         })
 
