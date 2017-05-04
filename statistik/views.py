@@ -229,7 +229,7 @@ def elo_view(request):
     context['level'] = level
     context['is_hc'] = clear_type
     context['is_hc_display'] = type_display
-    context['level_links'] = generate_elo_level_urls()
+    context['level_links'] = generate_elo_level_urls(game)
     context['nav_links'] = make_nav_links(
             level=int(level),
             elo='list' if display_list else 'match',

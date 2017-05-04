@@ -255,10 +255,13 @@ def generate_level_urls(game):
             for level in range(1,{0: 13, 1: 20}[game])]
 
 
-def generate_elo_level_urls():
+def generate_elo_level_urls(game):
     """
     Generate urls for elo pages
+    :param game: The game to generate levels for
     :rtype list: List of tuples containing level number and link
     """
-    return [(level, reverse('elo') + "?level=%d" % level)
-            for level in range(1,13)]
+    # TODO: (1 - game) is hacky and just happens to work, should probably do something else
+    # since IIDX goes from 12 up to 14 but DDR goes from 19 up to 20
+    return [(level, reverse('elo') + "?game=%d&level=%d" % (game, level))
+            for level in range(1, int(MAX_RATING[game] - (1 - game)))]
