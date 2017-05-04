@@ -195,8 +195,8 @@ def elo_view(request):
 
     if not (display_list or request.user.is_authenticated()):
         return HttpResponseRedirect(
-                reverse('elo') + '?level=%s&type=%d&list=true' %
-                (level, clear_type))
+                reverse('elo') + '?game=%d&level=%s&type=%d&list=true' %
+                (game, level, clear_type))
 
     # TODO extend to accommodate exhc and score types
     rate_type_column = 'elo_rating_hc' if clear_type == 1 else 'elo_rating'
@@ -207,8 +207,8 @@ def elo_view(request):
     if win and lose:
         draw = bool(request.GET.get('draw'))
         elo_rate_charts(int(win), int(lose), request.user, draw, clear_type)
-        return HttpResponseRedirect(reverse('elo') + '?level=%s&type=%d' %
-                                    (level, clear_type))
+        return HttpResponseRedirect(reverse('elo') + '?game=%d&level=%s&type=%d' %
+                                    (game, level, clear_type))
 
     # handle regular requests
     else:

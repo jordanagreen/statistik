@@ -683,12 +683,12 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
 
         if elo == 'match':
             ret.append(('ELO %s %d☆ %s' % (GAMES[game], level, type_display) + _(' LIST'),
-                        reverse('elo') + '?level=%d&type=%d&list=true' % (
-                            level, clear_type)))
+                        reverse('elo') + '?game=%d&level=%d&type=%d&list=true' % (
+                            game, level, clear_type)))
         elif elo == 'list':
             ret.append(('ELO %s %d☆ %s' % (GAMES[game], level, type_display) + _(' MATCHING'),
-                        reverse('elo') + '?level=%d&type=%d' % (
-                            level, clear_type)))
+                        reverse('elo') + '?game=%d&level=%d&type=%d' % (
+                            game, level, clear_type)))
 
     return ret
 
