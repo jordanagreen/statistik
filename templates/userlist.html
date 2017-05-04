@@ -33,7 +33,11 @@
             <td><a style="color: #000;" href="{% url 'users' %}?id={{ user_item.user_id }}">{{ user_item.username }}</a></td>
             <td>{{ user_item.dj_name }}</td>
             <td>{{ user_item.playside }}</td>
-            <td>{{ user_item.best_techniques }}</td>
+            <td>
+                {% for game, techs in user_item.best_techniques.items %}
+                    <b>{{ game }}:</b> {{ techs }}<br>
+                {% endfor %}
+            </td>
             <td>{{ user_item.location }}</td>
 
         </tr>

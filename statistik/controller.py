@@ -494,18 +494,30 @@ def get_user_list():
     # assemble display info for users
     user_data = []
     for user in users:
-        user_data.append({
-            'user_id': user.id,
-            'username': user.username,
-            'dj_name': user.userprofile.dj_name,
+        try:
+            techs = {}
+            for game in GAMES:
+                # make sure the tech is actually for the right game, each game has 100 added to its indices
+                game_techs = (', '.join([
+                         _(TECHNIQUE_CHOICES[game][x % 100][1])
+                         for x in user.userprofile.best_techniques
+                         if TECHNIQUE_CHOICES[game][x % 100][0] == x]))
+                if game_techs is not '':
+                    techs[GAMES[game]] = game_techs
 
-            'playside': user.userprofile.get_play_side_display(),
-            'best_techniques': ', '.join([
-                 _(TECHNIQUE_CHOICES[x][1])
-                 for x in user.userprofile.best_techniques]),
+            data = {'user_id': user.id,
+                    'username': user.username,
+                    'dj_name': user.userprofile.dj_name,
 
-            'location': user.userprofile.location
-        })
+                    'playside': user.userprofile.get_play_side_display(),
+                    'best_techniques': techs,
+
+                    'location': user.userprofile.location
+                    }
+            user_data.append(data)
+
+        except UserProfile.DoesNotExist:
+            continue
     return user_data
 
 

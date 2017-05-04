@@ -34,16 +34,16 @@ TECHNIQUE_CHOICES = {IIDX: [
         (8, _('Rolls')),
         (9, _('Chords'))
     ],
-    DDR: [(0, _('Crossovers')),
-        (1, _('Gallops')),
-        (2, _('Speed Changes')),
-        (3, _('Freeze Notes')),
-        (4, _('Shock Arrows')),
-        (5, _('Drills')),
-        (6, _('Jacks')),
-        (7, _('Step-Jumps')),
-        (8, _('Jump Streams')),
-        (9, _('Candles'))
+    DDR: [(100, _('Crossovers')),
+        (101, _('Gallops')),
+        (102, _('Speed Changes')),
+        (103, _('Freeze Notes')),
+        (104, _('Shock Arrows')),
+        (105, _('Drills')),
+        (106, _('Jacks')),
+        (107, _('Step-Jumps')),
+        (108, _('Jump Streams')),
+        (109, _('Candles'))
     ]}
 
 DIFFICULTY_SPIKE_CHOICES = [
