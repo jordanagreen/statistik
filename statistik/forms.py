@@ -95,7 +95,7 @@ class IIDXReviewForm(forms.Form):
         if not super(IIDXReviewForm, self).is_valid():
             return False
         max_rating = min(difficulty + 2, MAX_RATING[IIDX])
-        min_rating = max(difficulty - 2, MIN_RATING[IIDX])
+        min_rating = max(difficulty - 2, MIN_RATING)
         for field in ['clear_rating', 'hc_rating', 'exhc_rating',
                       'score_rating']:
             rating = self.cleaned_data.get(field)
