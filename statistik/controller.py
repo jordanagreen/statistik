@@ -665,14 +665,14 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
         if level:
             ret.append((_('ALL %(level)d☆ %(style)s') % {'level': level,
                                                          'style': style},
-                        reverse('ratings') + "?difficulty=%d&style=%s" % (
-                            level, style)))
+                        reverse('ratings') + "?game=%d&difficulty=%d&style=%s" % (
+                            game, level, style)))
         if version:
             version_display = FULL_VERSION_NAMES[game][version].upper()
             ret.append((_('ALL %(version)s %(style)s') % {'version': version_display,
                                                           'style': style},
-                        reverse('ratings') + "?version=%d&style=%s" % (
-                            version, style)))
+                        reverse('ratings') + "?game=%d&version=%d&style=%s" % (
+                            game, version, style)))
 
         if user:
             ret.append((_('USER LIST'),
