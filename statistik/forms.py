@@ -151,7 +151,7 @@ class DDRReviewForm(forms.Form):
         if not super(DDRReviewForm, self).is_valid():
             return False
         max_rating = min(difficulty + 2, MAX_RATING[DDR])
-        min_rating = max(difficulty - 2, MIN_RATING[DDR])
+        min_rating = max(difficulty - 2, MIN_RATING)
         for field in ['clear_rating', 'score_rating']:
             rating = self.cleaned_data.get(field)
             if rating is not None and not min_rating <= rating <= max_rating:

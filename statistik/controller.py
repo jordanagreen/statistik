@@ -421,9 +421,9 @@ def get_reviews_for_chart(chart_id):
             'score_rating': str(review.score_rating or ""),
 
             'characteristics': [
-                (_(TECHNIQUE_CHOICES[game][x][1]), '#187638')
+                (_(TECHNIQUE_CHOICES[game][x % 100][1]), '#187638')
                 if x in review.user.userprofile.best_techniques
-                else (_(TECHNIQUE_CHOICES[game][x][1]), '#000')
+                else (_(TECHNIQUE_CHOICES[game][x % 100][1]), '#000')
                 for x in review.characteristics],
 
             'recommended_options': ', '.join([
