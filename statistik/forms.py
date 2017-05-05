@@ -16,10 +16,14 @@ class RegisterForm(forms.Form):
     dj_name = forms.CharField(label="DJ NAME", max_length=6)
     location = forms.CharField(label=_("LOCATION"), max_length=64)
     playside = forms.ChoiceField(label=_("PLAYSIDE"), choices=PLAYSIDE_CHOICES)
-    best_techniques = forms.MultipleChoiceField(label=_("MOST INSANE TECHNIQUES"),
+    best_techniques_iidx = forms.MultipleChoiceField(label=_("MOST INSANE IIDX TECHNIQUES"),
                                                 help_text=_("Limit 3."),
-                                                # TODO: see if this can be split into both games?
                                                 choices=localize_choices(TECHNIQUE_CHOICES[IIDX]),
+                                                widget=forms.CheckboxSelectMultiple(),
+                                                required=False)
+    best_techniques_ddr = forms.MultipleChoiceField(label=_("MOST INSANE DDR TECHNIQUES"),
+                                                help_text=_("Limit 3."),
+                                                choices=localize_choices(TECHNIQUE_CHOICES[DDR]),
                                                 widget=forms.CheckboxSelectMultiple(),
                                                 required=False)
 
@@ -31,8 +35,11 @@ class RegisterForm(forms.Form):
             self.add_error('reenter_password', _('Passwords do not match.'))
             return False
 
-        if len(data.get('best_techniques')) > 3:
-            self.add_error('best_techniques', _('Please select no more than 3.'))
+        if len(data.get('best_techniques_iidx')) > 3:
+            self.add_error('best_techniques_iidx', _('Please select no more than 3.'))
+            return False
+        if len(data.get('best_techniques_ddr')) > 3:
+            self.add_error('best_techniques_ddr', _('Please select no more than 3.'))
             return False
 
         return True

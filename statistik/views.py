@@ -53,7 +53,6 @@ def ratings_view(request):
     Assemble ratings page. Possible filters include difficulty and version.
     :rtype dict: Context including chart data
     """
-    # TODO: see if game can be removed from the url params
     game = int(request.GET.get('game', IIDX))
     difficulty = request.GET.get('difficulty')
     versions = request.GET.getlist('version')
@@ -62,7 +61,6 @@ def ratings_view(request):
 
     if versions:
         game = int(versions[0]) // 100
-    # TODO: have the nav link for all songs of that level show songs from the right game
 
     # remove any None keys to avoid having to check for them later
     params = {k: v for k, v in {
@@ -251,7 +249,7 @@ def user_view(request):
         user = User.objects.filter(pk=user_id).first()
         if not user:
             return HttpResponseBadRequest()
-
+        # TODO: maybe have a separate review table for each game
         context['reviews'] = get_reviews_for_user(user.id)
 
         # if user is the logged in user, let them edit their options

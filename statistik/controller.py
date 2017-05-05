@@ -465,9 +465,9 @@ def get_reviews_for_user(user_id):
             'score_rating': str(review.score_rating or ""),
 
             'characteristics': [
-                (TECHNIQUE_CHOICES[game][x][1], '#187638')
+                (TECHNIQUE_CHOICES[game][x % 100][1], '#187638')
                 if x in review.user.userprofile.best_techniques
-                else (_(TECHNIQUE_CHOICES[game][x][1]), '#000')
+                else (_(TECHNIQUE_CHOICES[game][x % 100][1]), '#000')
                 for x in review.characteristics],
 
             'recommended_options': ', '.join([
@@ -535,7 +535,9 @@ def create_new_user(user_data):
                                location=user_data.get('location'),
                                play_side=user_data.get('playside'),
                                best_techniques=user_data.get(
-                                   'best_techniques'),
+                                   'best_techniques_iidx') + user_data.get(
+                                   'best_techniques_ddr'
+                               ),
                                max_reviewable=0)
     user_profile.save()
     return user
