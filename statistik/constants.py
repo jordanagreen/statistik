@@ -11,6 +11,11 @@ IIDX = 0
 DDR = 1
 GAMES = {IIDX: 'IIDX', DDR: 'DDR'}
 
+GAME_CHOICES = [
+    (0, 'IIDX'),
+    (1, 'DDR')
+]
+
 MAX_RATING = {IIDX: 14.0, DDR: 20.0}
 MIN_RATING = 1.0
 

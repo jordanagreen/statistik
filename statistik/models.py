@@ -6,7 +6,7 @@ from statistik.constants import (CHART_TYPE_CHOICES,
                                  TECHNIQUE_CHOICES, VERSION_CHOICES, PLAYSIDE_CHOICES,
                                  RECOMMENDED_OPTIONS_CHOICES,
                                  RATING_VALIDATORS, SCORE_CATEGORY_CHOICES,
-                                 DIFFICULTY_SPIKE_CHOICES, IIDX, GAMES)
+                                 DIFFICULTY_SPIKE_CHOICES, IIDX, GAMES, GAME_CHOICES)
 
 
 class Song(models.Model):
@@ -18,6 +18,7 @@ class Song(models.Model):
     genre = models.CharField(max_length=64, null=True, blank=True)
     bpm_min = models.SmallIntegerField()
     bpm_max = models.SmallIntegerField()
+    game = models.SmallIntegerField(choices=GAME_CHOICES, null=True)
     game_version = models.SmallIntegerField(choices=[v for g in GAMES for v in VERSION_CHOICES[g]])
 
     def __str__(self):
@@ -47,7 +48,7 @@ class Chart(models.Model):
     class Meta:
         unique_together = ('song', 'type')
 
-
+# TODO: see if this can be made to not use IIDX specifically, for now it works
 class EloReview(models.Model):
     first = models.ForeignKey(Chart, related_name='eloreview_win_set')
     second = models.ForeignKey(Chart, related_name='eloreview_lose_set')
