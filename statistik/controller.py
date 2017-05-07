@@ -14,7 +14,7 @@ from django.utils.translation import ugettext as _
 from statistik.constants import (SCORE_CATEGORY_NAMES, TECHNIQUE_CHOICES,
                                  RECOMMENDED_OPTIONS_CHOICES,
                                  FULL_VERSION_NAMES, SCORE_CATEGORY_CHOICES,
-                                 localize_choices, MIN_RATING, MAX_RATING, VERSION_CHOICES, IIDX, DDR, GAMES)
+                                 localize_choices, VERSION_CHOICES, IIDX, DDR, GAMES, GAME_CHOICES)
 from statistik.forms import RegisterForm, DDRReviewForm, IIDXReviewForm
 from statistik.models import Chart, Review, UserProfile, EloReview
 
@@ -451,7 +451,7 @@ def get_reviews_for_user(user_id):
     for review in matched_reviews:
         game = review.chart.song.game
         review_data.append({
-            'game': GAMES[game],
+            'game': GAME_CHOICES[game][1],
             'title': review.chart.song.title,
             'text': review.text,
             'chart_id': review.chart.id,
@@ -498,11 +498,11 @@ def get_user_list():
             for game in GAMES:
                 # make sure the tech is actually for the right game, each game has 100 added to its indices
                 game_techs = (', '.join([
-                         _(TECHNIQUE_CHOICES[game][x % 100][1])
+                         _(TECHNIQUE_CHOICES[GAMES[game]][x % 100][1])
                          for x in user.userprofile.best_techniques
-                         if TECHNIQUE_CHOICES[game][x % 100][0] == x]))
+                         if TECHNIQUE_CHOICES[GAMES[game]][x % 100][0] == x]))
                 if game_techs is not '':
-                    techs[GAMES[game]] = game_techs
+                    techs[game] = game_techs
 
             data = {'user_id': user.id,
                     'username': user.username,
@@ -659,21 +659,20 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
     :param int clear_type:  Rating type (refer to Chart model for options)
     :rtype list:            List of tuples of format (link text, link)
     """
-
-    ret = [(_('INDEX'), reverse('index') + '?game=' + str(game)),
-           (_('SEARCH'), reverse('search') + '?game=' + str(game))]
+    ret = [(_('INDEX'), reverse('index', kwargs={'game': GAME_CHOICES[game][1]})),
+           (_('SEARCH'), reverse('search', kwargs={'game': GAME_CHOICES[game][1]}))]
     if not elo:
         if level:
             ret.append((_('ALL %(level)d☆ %(style)s') % {'level': level,
                                                          'style': style},
-                        reverse('ratings') + "?game=%d&difficulty=%d&style=%s" % (
-                            game, level, style)))
+                        reverse('ratings', kwargs={'game': GAME_CHOICES[game][1]}) + "?difficulty=%d&style=%s" % (
+                            level, style)))
         if version:
             version_display = FULL_VERSION_NAMES[game][version].upper()
             ret.append((_('ALL %(version)s %(style)s') % {'version': version_display,
                                                           'style': style},
-                        reverse('ratings') + "?game=%d&version=%d&style=%s" % (
-                            game, version, style)))
+                        reverse('ratings', kwargs={'game': GAME_CHOICES[game][1]}) + "?version=%d&style=%s" % (
+                            version, style)))
 
         if user:
             ret.append((_('USER LIST'),
@@ -683,13 +682,13 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
         type_display = SCORE_CATEGORY_CHOICES[game][int(clear_type)][1]
 
         if elo == 'match':
-            ret.append(('ELO %s %d☆ %s' % (GAMES[game], level, type_display) + _(' LIST'),
-                        reverse('elo') + '?game=%d&level=%d&type=%d&list=true' % (
-                            game, level, clear_type)))
+            ret.append(('ELO %s %d☆ %s' % (GAME_CHOICES[game][1], level, type_display) + _(' LIST'),
+                        reverse('elo', kwargs={'game': GAME_CHOICES[game][1]}) + '?&level=%d&type=%d&list=true' % (
+                            level, clear_type)))
         elif elo == 'list':
-            ret.append(('ELO %s %d☆ %s' % (GAMES[game], level, type_display) + _(' MATCHING'),
-                        reverse('elo') + '?game=%d&level=%d&type=%d' % (
-                            game, level, clear_type)))
+            ret.append(('ELO %s %d☆ %s' % (GAME_CHOICES[game][1], level, type_display) + _(' MATCHING'),
+                        reverse('elo', kwargs={'game': GAME_CHOICES[game][1]}) + '?level=%d&type=%d' % (
+                            level, clear_type)))
 
     return ret
 
@@ -702,8 +701,8 @@ def make_game_links(game=IIDX):
     """
     ret = []
     for g in GAMES:
-        if g != game:
-            ret.append((GAMES[g], reverse('index') + '?game=' + str(g)))
+        if GAMES[g] != game:
+            ret.append((g, reverse('index', kwargs={'game': g})))
     return ret
 
 

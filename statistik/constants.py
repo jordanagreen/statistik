@@ -6,10 +6,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
 from numpy import arange
 
-# TODO: see if this can be reversed so the name can be used in the url instead of a number
 IIDX = 0
 DDR = 1
-GAMES = {IIDX: 'IIDX', DDR: 'DDR'}
+# GAMES = {IIDX: 'IIDX', DDR: 'DDR'}
+GAMES = {'IIDX': IIDX, 'DDR': DDR}
 
 GAME_CHOICES = [
     (0, 'IIDX'),
@@ -19,13 +19,14 @@ GAME_CHOICES = [
 MAX_RATING = {IIDX: 14.0, DDR: 20.0}
 MIN_RATING = 1.0
 
-RATING_CHOICES = [[(i, str(i)) for i in arange(MIN_RATING, MAX_RATING[game]+.1, 0.1)] for game in GAMES]
+RATING_CHOICES = [[(i, str(i)) for i in arange(MIN_RATING, MAX_RATING[game[0]]+.1, 0.1)] for game in GAME_CHOICES]
 
 # RATING_VALIDATORS = {IIDX: [MaxValueValidator(MAX_RATING[IIDX]),
 #                             MinValueValidator(MIN_RATING)],
 #                      DDR: [MaxValueValidator(MAX_RATING[DDR]),
 #                             MinValueValidator(MIN_RATING)]}
-RATING_VALIDATORS = {game: [MaxValueValidator(MAX_RATING[game]), MinValueValidator(MIN_RATING)] for game in GAMES}
+RATING_VALIDATORS = {game[0]: [MaxValueValidator(MAX_RATING[game[0]]),
+                            MinValueValidator(MIN_RATING)] for game in GAME_CHOICES}
 
 TECHNIQUE_CHOICES = {IIDX: [
         (0, _('Scratching')),
@@ -247,7 +248,7 @@ def generate_version_urls(game=IIDX):
     Generate urls for ratings page based on VERSION_CHOICES
     :rtype list: List of tuples containing version abbreviation and link
     """
-    return [(version[1], reverse('ratings') + "?version=%d&game=%d" % (version[0], game))
+    return [(version[1], reverse('ratings', kwargs={'game': GAME_CHOICES[game][1]}) + "?version=%d" % version[0])
             for version in VERSION_CHOICES[game] if version[0]//100 == game]
 
 
@@ -256,8 +257,8 @@ def generate_level_urls(game):
     Generate urls for ratings page based on levels (1-12)
     :rtype list: List of tuples containing level number and link
     """
-    return [(level, reverse('ratings') + "?difficulty=%d&game=%d" % (level, game))
-            for level in range(1,{0: 13, 1: 20}[game])]
+    return [(level, reverse('ratings', kwargs={'game': GAME_CHOICES[game][1]}) + "?difficulty=%d" % level)
+            for level in range(1, {IIDX: 13, DDR: 20}[game])]
 
 
 def generate_elo_level_urls(game):
@@ -266,7 +267,5 @@ def generate_elo_level_urls(game):
     :param game: The game to generate levels for
     :rtype list: List of tuples containing level number and link
     """
-    # TODO: (1 - game) is hacky and just happens to work, should probably do something else
-    # since IIDX goes from 12 up to 14 but DDR goes from 19 up to 20
-    return [(level, reverse('elo') + "?game=%d&level=%d" % (game, level))
-            for level in range(1, int(MAX_RATING[game] - (1 - game)))]
+    return [(level, reverse('elo', kwargs={'game': GAME_CHOICES[game][1]}) + "?level=%d" % level)
+            for level in range(1, {IIDX: 13, DDR: 20}[game])]

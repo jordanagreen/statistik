@@ -39,7 +39,7 @@
                     <b>{{ chart.difficulty }}☆</b>
             {% endif %}
                 </td>
-            <td class="title_col" sorttable_customkey="{{ chart.alt_title }}"><a style="color: #000;" href="{% url 'chart' %}?id={{ chart.id }}"> {{ chart.title }}</a></td>
+            <td class="title_col" sorttable_customkey="{{ chart.alt_title }}"><a style="color: #000;" href="{% url 'chart' chart_id=chart.id %}"> {{ chart.title }}</a></td>
             <td class="notecount_col">{{ chart.note_count }}</td>
             {% if chart.clickagain_nc %}
                 <td class="nc_col" style="color: #f11137;;">{{ chart.avg_clear_rating | default:"--" }}</td>
