@@ -3,6 +3,7 @@ import json
 import django
 import psycopg2
 
+from statistik.constants import DDR
 from statistik.models import Song, Chart
 
 
@@ -19,7 +20,7 @@ def main():
             bpm_min = song['bpm_min']
             bpm_max = song['bpm_max']
             game_version = song['game_version']
-
+            game = DDR
 
 
             new_song = Song(
@@ -31,7 +32,8 @@ def main():
                 alt_artist=alt_artist,
                 genre=genre,
                 alt_title=alt_title,
-                game_version=game_version or music_id // 1000
+                game_version=game_version or music_id // 1000,
+                game=game or game_version // 100
             )
             try:
                 new_song.save()

@@ -153,26 +153,24 @@ def chart_view(request):
     context['difficulty'] = chart.difficulty
     context['chart_id'] = chart_id
 
-    game = chart.song.game_version // 100
-
     form_data = request.POST if request.method == 'POST' else None
     context['form'], context['review_exists'] = generate_review_form(
             request.user, chart_id, form_data)
 
     # get reviews for this chart, cache users for username and playside lookup
     context['reviews'] = get_reviews_for_chart(chart_id)
-    if game == IIDX:
+    if chart.song.game == IIDX:
         style = chart.get_type_display()[:2]
     else:
         style = chart.get_type_display()[1:]
         if style[0] == 'E':
             style = 'SP'
 
-    context['nav_links'] = make_nav_links(game=game,
+    context['nav_links'] = make_nav_links(game=chart.song.game,
                                           level=chart.difficulty,
                                           style=style,
                                           version=chart.song.game_version)
-    if game == IIDX:
+    if chart.song.game == IIDX:
         return render(request, 'chart_iidx.html', context)
     else:
         return render(request, 'chart_ddr.html', context)

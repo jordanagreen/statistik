@@ -284,7 +284,7 @@ def generate_review_form(user, chart_id, form_data=None):
     :rtype tuple:           (ReviewForm, bool indicating if user reviewed chart)
     """
     chart = Chart.objects.get(pk=chart_id)
-    game = chart.song.game_version // 100
+    game = chart.song.game
     # if user is authenticated and can review this chart, display review form
     if user.is_authenticated():
         user_profile = UserProfile.objects.filter(user=user).first()
@@ -403,8 +403,7 @@ def get_reviews_for_chart(chart_id):
     chart_reviews = Review.objects.filter(chart=chart_id).prefetch_related(
         'user__userprofile')
 
-    # TODO: move getting game from id to a method at some point
-    game = Chart.objects.get(id=chart_id).song.game_version // 100
+    game = Chart.objects.get(id=chart_id).song.game
 
     # collect info to display for each review
     review_data = []
@@ -450,7 +449,7 @@ def get_reviews_for_user(user_id):
     # assemble display info for these reviews
     review_data = []
     for review in matched_reviews:
-        game = review.chart.song.game_version // 100
+        game = review.chart.song.game
         review_data.append({
             'game': GAMES[game],
             'title': review.chart.song.title,
