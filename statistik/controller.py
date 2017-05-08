@@ -617,10 +617,9 @@ def make_elo_matchup(game, level):
     """
     elo_diff = 9001
     chart1 = chart2 = None
-    versions = [str(v[0]) for v in VERSION_CHOICES[game]]
     # singles difficulties only
     sng = {IIDX: [str(i) for i in range(0, 3)], DDR: [str(i) for i in range(100, 105)]}
-    charts = list(Chart.objects.filter(difficulty=int(level), type__in=sng[game], song__game_version__in=versions))
+    charts = list(Chart.objects.filter(difficulty=int(level), type__in=sng[game], song__game=game))
 
     # only return closely-matched charts for better rankings
     while elo_diff > 50:
