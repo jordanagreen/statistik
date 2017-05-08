@@ -15,7 +15,7 @@
         </tr>
     {% for review in reviews %}
         <tr style="line-height: 150%">
-            <td class="username_col"><a style="color: #000;" href="{% url 'users' %}?id={{ review.user_id }}">{{ review.user }}</a></td>
+            <td class="username_col"><a style="color: #000;" href="{% url 'users' user_id=review.user_id %}">{{ review.user }}</a></td>
             <td class="reviewtext_col">
                 {{ review.text }}
                     {% if review.characteristics %}

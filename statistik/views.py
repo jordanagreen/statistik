@@ -239,13 +239,13 @@ def elo_view(request, game='IIDX'):
     return render(request, 'elo_rating.html', context)
 
 
-def user_view(request):
+def user_view(request, user_id=None):
     """
     Handle requests for both individual user pages as well as the userlist
     :param request: Request to handle
+    :param user_id: The ID of the user to show, or None to show a list of all users
     """
     context = {}
-    user_id = request.GET.get('id')
     if user_id:
         # make sure this user actually exists
         user = User.objects.filter(pk=user_id).first()

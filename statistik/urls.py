@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^ratings$', views.ratings_view, name='ratings'),
     url(r'^(?P<game>(IIDX|DDR))/ratings$', views.ratings_view, name='ratings'),
     url(r'^user$', views.user_view, name='users'),
+    url(r'^user/(?P<user_id>([0-9]*))$', views.user_view, name='users'),
     url(r'^chart/(?P<chart_id>([0-9]*))$', views.chart_view, name='chart'),
     url(r'^elo$', views.elo_view, name='elo'),
     url(r'^(?P<game>(IIDX|DDR))/elo$', views.elo_view, name='elo'),
