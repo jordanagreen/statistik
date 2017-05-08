@@ -21,7 +21,7 @@ from statistik.controller import (get_chart_data, generate_review_form,
                                   get_elo_rankings, make_elo_matchup,
                                   create_page_title, make_nav_links,
                                   generate_user_form, delete_review, make_game_links)
-from statistik.forms import RegisterForm, SearchForm
+from statistik.forms import RegisterForm, DDRSearchForm, IIDXSearchForm
 
 
 def index(request, game='IIDX'):
@@ -37,7 +37,7 @@ def index(request, game='IIDX'):
             (_('STANDARD RATINGS'), reverse('ratings', kwargs={'game': game})),
             (_('ELO RATINGS'), reverse('elo', kwargs={'game': game})),
             (_('USER LIST'), reverse('users')),
-            (_('SEARCH'), reverse('search'))
+            (_('SEARCH'), reverse('search', kwargs={'game': game}))
         ],
 
         'title': 'STATISTIK // ' + _('INDEX') + ' // ' + game,
@@ -70,7 +70,7 @@ def ratings_view(request, game='IIDX'):
         'title': request.GET.get('title'),
         'genre': request.GET.get('genre'),
         'artist': request.GET.get('artist'),
-        'play_style': request.GET.getlist('play_style'),
+        'play_style': request.GET.get('play_style'),
         'min_nc': request.GET.get('min_nc'),
         'max_nc': request.GET.get('max_nc'),
         'min_hc': request.GET.get('min_hc'),
@@ -338,19 +338,23 @@ def logout_view(request):
     return redirect('index')
 
 
-def search_view(request):
+def search_view(request, game='IIDX'):
     """
     GET only, gives the user a search form
     :param request: Request to handle
+    :param game: The game to search charts from
     """
     context = {}
     title_elements = ['SEARCH']
     create_page_title(context, title_elements)
     if 'submit' in request.GET:
-        form = SearchForm(request.GET)
+        if game == 'DDR':
+            form = DDRSearchForm(request.GET)
+        else:
+            form = IIDXSearchForm(request.GET)
         if form.is_valid():
             # pass on the search filters to the ratings view
-            response = redirect('ratings')
+            response = redirect(reverse('ratings', kwargs={'game': game}))
             # delete any filters left empty or at the default to clean up the URL
             query = request.GET.copy()
             empty = []
@@ -364,7 +368,11 @@ def search_view(request):
             response['Location'] += '?' + query.urlencode()
             return response
     else:
-        form = SearchForm()
+        if game == 'DDR':
+            form = DDRSearchForm()
+        else:
+            form = IIDXSearchForm()
     context['form'] = form
-    context['nav_links'] = make_nav_links()
+    context['nav_links'] = make_nav_links(game=GAMES[game])
+    context['game'] = game
     return render(request, 'search.html', context)

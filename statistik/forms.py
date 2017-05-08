@@ -168,7 +168,7 @@ class DDRReviewForm(forms.Form):
         return True
 
 
-class SearchForm(forms.Form):
+class IIDXSearchForm(forms.Form):
     class RatingField(forms.ChoiceField):
         def to_python(self, value):
             if not value:
@@ -249,12 +249,89 @@ class SearchForm(forms.Form):
                                                 required=False)
 
     def is_valid(self):
-        super(SearchForm, self).is_valid()
+        super(IIDXSearchForm, self).is_valid()
         data = self.cleaned_data
         for (minimum, maximum) in [('min_difficulty', 'max_difficulty'),
                                    ('min_nc', 'max_nc'),
                                    ('min_hc', 'max_hc'),
                                    ('min_exhc', 'max_exhc'),
+                                   ('min_score', 'max_score')]:
+            min_difficulty = data.get(minimum)
+            max_difficulty = data.get(maximum)
+            if min_difficulty and max_difficulty and float(max_difficulty) < float(min_difficulty):
+                for field in [minimum, maximum]:
+                    self.add_error(field, '%s cannot be lower than %s.' % (maximum, minimum))
+                return False
+        # have to have at least one search filter
+        if not self.changed_data:
+            # self.add_error(None, 'must have at least one search filter')
+            return False
+
+        return True
+
+
+class DDRSearchForm(forms.Form):
+    class RatingField(forms.ChoiceField):
+        def to_python(self, value):
+            if not value:
+                return None
+            return float(value)
+
+    title = forms.CharField(label=_("TITLE"),
+                            max_length=100,
+                            required=False)
+    artist = forms.CharField(label=_("ARTIST"),
+                             max_length=50,
+                             required=False)
+    min_difficulty = RatingField(label=_("MIN DIFFICULTY"),
+                                 choices=[(i, str(i)) for i in range(1, 13)],
+                                 validators=RATING_VALIDATORS[DDR],
+                                 initial=1,
+                                 required=False)
+    max_difficulty = RatingField(label=_("MAX DIFFICULTY"),
+                                 choices=[(i, str(i)) for i in range(1, 13)],
+                                 validators=RATING_VALIDATORS[DDR],
+                                 initial=12,
+                                 required=False)
+    min_nc = RatingField(label=_("MIN CLEAR RATING"),
+                         choices=RATING_CHOICES[DDR],
+                         validators=RATING_VALIDATORS[DDR],
+                         initial=MIN_RATING,
+                         required=False)
+    max_nc = RatingField(label=_("MAX CLEAR RATING"),
+                         choices=RATING_CHOICES[DDR],
+                         validators=RATING_VALIDATORS[DDR],
+                         initial=MAX_RATING[DDR],
+                         required=False)
+    min_score = RatingField(label=_("MIN SCORE RATING"),
+                           choices=RATING_CHOICES[DDR],
+                           validators=RATING_VALIDATORS[DDR],
+                           initial=MIN_RATING,
+                           required=False)
+    max_score = RatingField(label=_("MAX SCORE RATING"),
+                            choices=RATING_CHOICES[DDR],
+                            validators=RATING_VALIDATORS[DDR],
+                            initial=MAX_RATING[DDR],
+                            required=False)
+    play_style = forms.ChoiceField(label=_("PLAY STYLE"),
+                              choices=PLAY_STYLE_CHOICES,
+                              initial=0,
+                              widget=forms.RadioSelect(),
+                              required=False)
+    version = forms.MultipleChoiceField(label=_("VERSION"),
+                                        choices=[(i, n) for i, n in VERSION_CHOICES[DDR]],
+                                        widget=forms.CheckboxSelectMultiple(),
+                                        required=False)
+    techs = forms.MultipleChoiceField(label=_("TECHNIQUES"),
+                                                choices=TECHNIQUE_CHOICES[DDR],
+                                                widget=forms.CheckboxSelectMultiple,
+                                                required=False)
+
+    def is_valid(self):
+        super(DDRSearchForm, self).is_valid()
+        data = self.cleaned_data
+        for (minimum, maximum) in [('min_difficulty', 'max_difficulty'),
+                                   ('min_nc', 'max_nc'),
                                    ('min_score', 'max_score')]:
             min_difficulty = data.get(minimum)
             max_difficulty = data.get(maximum)

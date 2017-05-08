@@ -138,11 +138,9 @@ def get_charts_by_query(game=IIDX, versions=None, difficulty=None, play_style=No
 
     # create filters for songlist based off params
     filters = {}
-    # if no version specified, limit to all versions of that game
-    # TODO: make sure all specified versions are from the same game
-    if not versions:
-        versions = [v for (v, n) in VERSION_CHOICES[game]]
-    filters['song__game_version__in'] = versions
+    filters['song__game'] = str(game)
+    if versions:
+        filters['song__game_version__in'] = versions
     minimum = '1'
     maximum = {IIDX: '12', DDR: '20'}[game]
     if difficulty:
@@ -163,7 +161,7 @@ def get_charts_by_query(game=IIDX, versions=None, difficulty=None, play_style=No
                                    {'0': ['0', '1', '2'],
                                     '1': ['3', '4', '5']},
                                DDR: {'0': ['100', '101', '102', '103', '104'],
-                                     '1': ['105', '106', '107', '108']}}[game][params['level'][0]]
+                                     '1': ['105', '106', '107', '108']}}[game][params['play_style']]
     else:
         filters['type__in'] = {IIDX:
                                    {'SP': ['0', '1', '2'],
