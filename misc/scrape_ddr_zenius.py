@@ -49,6 +49,18 @@ def main():
                     s_row.pop(2)
 
                 song_name = s_row[0].strip()
+                title_cell = rows[0].find_all('td')[0].next.next
+                if title_cell.name == 'span':
+                    alt_title = title_cell.get('onmouseover', None)
+                    if alt_title:
+                        alt_title = str(alt_title).replace("this.innerHTML='", '').replace("';", '')
+                else:
+                    alt_title = song_name
+                # TODO: alt artist
+                if song_name != alt_title:
+                    print(song_name, "|", alt_title)
+                else:
+                    print(song_name)
                 artist = s_row[1].strip()
                 [bpm_min, bpm_max] = s_row[2].split('-') if '-' in s_row[2] else [
                     s_row[2], s_row[2]]
@@ -57,8 +69,10 @@ def main():
                 music_id = versions[game_version] * 1000 + id_counter
 
                 song = {
+                    'game': 1,
                     'music_id': music_id,
                     'title': song_name,
+                    'alt_title': alt_title,
                     'artist': artist,
                     'bpm_min': bpm_min,
                     'bpm_max': bpm_max,
@@ -91,7 +105,7 @@ def main():
                             }
                 db.append(song)
                 id_counter += 1
-                print(song_name, music_id)
+                # print(song_name, music_id)
 
     with open('ddr.json', 'w') as outfile:
         json.dump(db, outfile, indent=4)

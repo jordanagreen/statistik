@@ -22,7 +22,7 @@ def main():
             game_version = song['game_version']
             game = DDR
 
-
+            # TODO: have this update it if it already exists
             new_song = Song(
                 music_id=music_id,
                 bpm_min=bpm_min,
@@ -39,8 +39,9 @@ def main():
                 new_song.save()
                 print('Added song %s' % title)
             except (psycopg2.IntegrityError, django.db.utils.IntegrityError) as e:
-                print(e)
-                continue
+                # print(e)
+                print('%s already in database' % title)
+                pass  # might be some new charts
 
             for chart in song['charts']:
                 difficulty = song['charts'][chart]['difficulty']
@@ -58,7 +59,7 @@ def main():
                     chart.save()
                     print('importing chart %d:%d' % (music_id, type))
                 except (psycopg2.IntegrityError, django.db.utils.IntegrityError) as e:
-                    print(e)
+                    # print(e)
                     continue
 
 
