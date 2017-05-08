@@ -603,7 +603,7 @@ def get_elo_rankings(game, level, rate_type):
             'title': chart.song.title,
             'type': chart.get_type_display(),
             'rating': round(getattr(chart, rate_type), 3),
-            'link': reverse('chart') + '?id=' + str(chart.id)
+            'link': reverse('chart', kwargs={'chart_id': chart.id})
         })
     return chart_data
 
