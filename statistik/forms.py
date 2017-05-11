@@ -140,10 +140,9 @@ class DDRReviewForm(forms.Form):
                                                 widget=forms.CheckboxSelectMultiple(),
                                                 required=False)
 
-    recommended_options = forms.MultipleChoiceField(
-        label=_("RECOMMENDED OPTIONS"),
+    recommended_options = forms.ChoiceField(
+        label=_("RECOMMENDED SPEED MOD"),
         choices=localize_choices(RECOMMENDED_OPTIONS_CHOICES[DDR]),
-        widget=forms.CheckboxSelectMultiple(),
         required=False,
     )
 
@@ -152,6 +151,9 @@ class DDRReviewForm(forms.Form):
         for attr in ['clear_rating', 'score_rating']:
             if cleaned_data.get(attr):
                 cleaned_data[attr] = round(cleaned_data[attr], 1)
+        # put the speed mod in an array even though it's just one choice because iidx can expect multiple options
+        if cleaned_data.get('recommended_options'):
+            cleaned_data['recommended_options'] = [cleaned_data['recommended_options']]
         return cleaned_data
 
     def is_valid(self, difficulty=None):
@@ -168,13 +170,14 @@ class DDRReviewForm(forms.Form):
         return True
 
 
-class IIDXSearchForm(forms.Form):
-    class RatingField(forms.ChoiceField):
-        def to_python(self, value):
-            if not value:
-                return None
-            return float(value)
+class RatingField(forms.ChoiceField):
+    def to_python(self, value):
+        if not value:
+            return None
+        return float(value)
 
+
+class IIDXSearchForm(forms.Form):
     title = forms.CharField(label=_("TITLE"),
                             max_length=100,
                             required=False)
@@ -271,12 +274,6 @@ class IIDXSearchForm(forms.Form):
 
 
 class DDRSearchForm(forms.Form):
-    class RatingField(forms.ChoiceField):
-        def to_python(self, value):
-            if not value:
-                return None
-            return float(value)
-
     title = forms.CharField(label=_("TITLE"),
                             max_length=100,
                             required=False)
