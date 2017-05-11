@@ -318,7 +318,7 @@ def generate_review_form(user, chart_id, form_data=None):
                                             'difficulty_spike',
                                             'recommended_options']}
                         form = IIDXReviewForm(data)
-                    else:
+                    elif game == DDR:
                         data = {key: getattr(user_review, key)
                                 for key in ['text',
                                             'clear_rating',
@@ -326,6 +326,9 @@ def generate_review_form(user, chart_id, form_data=None):
                                             'characteristics',
                                             'difficulty_spike',
                                             'recommended_options']}
+                        # ddr has one speed mod instead of multiple options
+                        if data['recommended_options']:
+                            data['recommended_options'] = data['recommended_options'][0]
                         form = DDRReviewForm(data)
                     has_reviewed = True
 
