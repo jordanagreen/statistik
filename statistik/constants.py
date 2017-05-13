@@ -16,7 +16,7 @@ GAME_CHOICES = [
     (1, 'DDR')
 ]
 
-MAX_RATING = {IIDX: 14.0, DDR: 20.0}
+MAX_RATING = {IIDX: 14.0, DDR: 21.0}
 MIN_RATING = 1.0
 
 RATING_CHOICES = [[(i, str(i)) for i in arange(MIN_RATING, MAX_RATING[game[0]]+.1, 0.1)] for game in GAME_CHOICES]
