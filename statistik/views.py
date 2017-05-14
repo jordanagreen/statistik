@@ -31,13 +31,13 @@ def index(request, game='IIDX'):
     :param game:    The game to show the page for (from GAME_CHOICES)
     :rtype HTTPResponse:
     """
-
+    reverse_kwargs = {'game': game}
     context = {
         'index_links': [
-            (_('STANDARD RATINGS'), reverse('ratings', kwargs={'game': game})),
-            (_('ELO RATINGS'), reverse('elo', kwargs={'game': game})),
+            (_('STANDARD RATINGS'), reverse('ratings', kwargs=reverse_kwargs)),
+            (_('ELO RATINGS'), reverse('elo', kwargs=reverse_kwargs)),
             (_('USER LIST'), reverse('users')),
-            (_('SEARCH'), reverse('search', kwargs={'game': game}))
+            (_('SEARCH'), reverse('search', kwargs=reverse_kwargs))
         ],
 
         'title': 'STATISTIK // ' + _('INDEX') + ' // ' + game,
@@ -167,6 +167,7 @@ def chart_view(request, chart_id=None):
         style = chart.get_type_display()[:2]
     else:
         style = chart.get_type_display()[1:]
+        # if difficulty is beginner, make it SP
         if style[0] == 'E':
             style = 'SP'
 

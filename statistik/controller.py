@@ -14,7 +14,7 @@ from django.utils.translation import ugettext as _
 from statistik.constants import (SCORE_CATEGORY_NAMES, TECHNIQUE_CHOICES,
                                  RECOMMENDED_OPTIONS_CHOICES,
                                  FULL_VERSION_NAMES, SCORE_CATEGORY_CHOICES,
-                                 localize_choices, VERSION_CHOICES, IIDX, DDR, GAMES, GAME_CHOICES)
+                                 localize_choices, VERSION_CHOICES, IIDX, DDR, GAMES, GAME_CHOICES, SINGLES_LEVELS)
 from statistik.forms import RegisterForm, DDRReviewForm, IIDXReviewForm
 from statistik.models import Chart, Review, UserProfile, EloReview
 
@@ -587,12 +587,12 @@ def get_elo_rankings(game, level, rate_type):
     :param str rate_type:   Rating type (refer to Chart model for options)
     :rtype list:            List of dicts containing chart/ranking data
     """
-    # TODO: just add a game field to song model at some point so this can be avoided
     versions = [str(v[0]) for v in VERSION_CHOICES[game]]
     # singles difficulties only
-    sng = {IIDX: [str(i) for i in range(0, 3)], DDR: [str(i) for i in range(100, 105)]}
-    matched_charts = Chart.objects.filter(difficulty=int(level), type__in=sng[game], song__game_version__in=versions) \
-        .prefetch_related('song').order_by('-' + rate_type)
+    singles = [str(i) for i in SINGLES_LEVELS[game]]
+    matched_charts = Chart.objects.filter(difficulty=int(level), type__in=singles[game],
+                                          song__game_version__in=versions).prefetch_related('song').order_by(
+                                          '-' + rate_type)
 
     # assemble displayed elo info for matched charts
     # TODO add link to 'normal' chart reviews
@@ -659,19 +659,21 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
     :param int clear_type:  Rating type (refer to Chart model for options)
     :rtype list:            List of tuples of format (link text, link)
     """
-    ret = [(_('INDEX'), reverse('index', kwargs={'game': GAME_CHOICES[game][1]})),
-           (_('SEARCH'), reverse('search', kwargs={'game': GAME_CHOICES[game][1]}))]
+    game_name = GAME_CHOICES[game][1]
+    reverse_kwargs = {'game': game_name}
+    ret = [(_('INDEX'), reverse('index', kwargs=reverse_kwargs)),
+           (_('SEARCH'), reverse('search', kwargs=reverse_kwargs))]
     if not elo:
         if level:
             ret.append((_('ALL %(level)d☆ %(style)s') % {'level': level,
                                                          'style': style},
-                        reverse('ratings', kwargs={'game': GAME_CHOICES[game][1]}) + "?difficulty=%d&style=%s" % (
+                        reverse('ratings', kwargs=reverse_kwargs) + "?difficulty=%d&style=%s" % (
                             level, style)))
         if version:
             version_display = FULL_VERSION_NAMES[game][version].upper()
             ret.append((_('ALL %(version)s %(style)s') % {'version': version_display,
                                                           'style': style},
-                        reverse('ratings', kwargs={'game': GAME_CHOICES[game][1]}) + "?version=%d&style=%s" % (
+                        reverse('ratings', kwargs=reverse_kwargs) + "?version=%d&style=%s" % (
                             version, style)))
 
         if user:
@@ -683,11 +685,11 @@ def make_nav_links(game=IIDX, level=None, style='SP', version=None, user=None, e
 
         if elo == 'match':
             ret.append(('ELO %s %d☆ %s' % (GAME_CHOICES[game][1], level, type_display) + _(' LIST'),
-                        reverse('elo', kwargs={'game': GAME_CHOICES[game][1]}) + '?&level=%d&type=%d&list=true' % (
+                        reverse('elo', kwargs=reverse_kwargs) + '?&level=%d&type=%d&list=true' % (
                             level, clear_type)))
         elif elo == 'list':
             ret.append(('ELO %s %d☆ %s' % (GAME_CHOICES[game][1], level, type_display) + _(' MATCHING'),
-                        reverse('elo', kwargs={'game': GAME_CHOICES[game][1]}) + '?level=%d&type=%d' % (
+                        reverse('elo', kwargs=reverse_kwargs) + '?level=%d&type=%d' % (
                             level, clear_type)))
 
     return ret

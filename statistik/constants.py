@@ -8,7 +8,6 @@ from numpy import arange
 
 IIDX = 0
 DDR = 1
-# GAMES = {IIDX: 'IIDX', DDR: 'DDR'}
 GAMES = {'IIDX': IIDX, 'DDR': DDR}
 
 GAME_CHOICES = [
@@ -21,10 +20,6 @@ MIN_RATING = 1.0
 
 RATING_CHOICES = [[(i, str(i)) for i in arange(MIN_RATING, MAX_RATING[game[0]]+.1, 0.1)] for game in GAME_CHOICES]
 
-# RATING_VALIDATORS = {IIDX: [MaxValueValidator(MAX_RATING[IIDX]),
-#                             MinValueValidator(MIN_RATING)],
-#                      DDR: [MaxValueValidator(MAX_RATING[DDR]),
-#                             MinValueValidator(MIN_RATING)]}
 RATING_VALIDATORS = {game[0]: [MaxValueValidator(MAX_RATING[game[0]]),
                             MinValueValidator(MIN_RATING)] for game in GAME_CHOICES}
 
@@ -244,6 +239,9 @@ RECOMMENDED_OPTIONS_CHOICES = {IIDX: [
           (23, '8.0x')
     ]}
 
+# The levels for single play for each game
+SINGLES_LEVELS = {IIDX: range(0, 3),
+                  DDR: range(100, 105)}
 
 def localize_choices(choices):
     return [(choice[0], _(choice[1])) for choice in choices]

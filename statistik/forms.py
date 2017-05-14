@@ -35,13 +35,10 @@ class RegisterForm(forms.Form):
             self.add_error('reenter_password', _('Passwords do not match.'))
             return False
 
-        if len(data.get('best_techniques_iidx')) > 3:
-            self.add_error('best_techniques_iidx', _('Please select no more than 3.'))
-            return False
-        if len(data.get('best_techniques_ddr')) > 3:
-            self.add_error('best_techniques_ddr', _('Please select no more than 3.'))
-            return False
-
+        for techniques_field in ['best_techniques_iidx', 'best_techniques_ddr']:
+            if len(data.get(techniques_field)) > 3:
+                self.add_error(techniques_field, _('Please select no more than 3.'))
+                return False
         return True
 
 # TODO: see if this can be made back into just ReviewForm, wasn't letting me just have a game parameter
